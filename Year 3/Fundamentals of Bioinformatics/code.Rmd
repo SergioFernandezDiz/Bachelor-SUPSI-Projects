@@ -1,0 +1,1689 @@
+---
+title: "Bioinformatics Project"
+author: "Sergio Fernandez - Alessandro Mecchia - Paolo Nicolet"
+date: "`r Sys.Date()`"
+output:
+  html_notebook:
+    toc: true
+    toc_depth: 2
+---
+
+# Imports and packages
+
+```{r}
+BiocManager::install("recount3")
+BiocManager::install("org.Hs.eg.db")
+install.packages("tidyverse")
+install.packages("pheatmap")
+```
+
+```{r}
+library(recount3)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(stringr)
+library(edgeR)
+library(pheatmap)
+library(gplots)
+library(RColorBrewer)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+```
+
+```{r}
+library(clusterProfiler)
+library(org.Hs.eg.db) 
+library(enrichplot)
+```
+
+# 1. Project Introduction
+
+**da completare**
+
+# 2. Dataset Selection
+
+```{r}
+# List of available projects
+projects <- available_projects()
+projects
+
+```
+
+```{r}
+# Filter by GTEx (normal tissues)
+gtex_projects <- subset(projects, file_source == "gtex")
+
+# Explore metadata
+gtex_projects
+```
+
+```{r}
+
+proj_info_pancreas <- subset(
+    gtex_projects,
+    project == "BRAIN" & project_type == "data_sources"
+)
+
+# Connet to GTEx project
+rse_gene_BRAIN <- create_rse(proj_info_pancreas)
+rse_gene_BRAIN
+```
+
+```{r}
+colnames(colData(rse_gene_BRAIN))
+```
+
+```{r}
+
+# Filter by TCGA (the cancer genome atlas)
+tcga_projects <- subset(projects, file_source== "tcga")
+
+# Explore metadata
+tcga_projects
+```
+
+```{r}
+
+proj_info_gbm <- subset(
+  tcga_projects,
+  project == "GBM" & project_type == "data_sources"
+)
+
+rse_gene_tcga <- create_rse(proj_info_gbm, type = "gene")
+
+metadata_tcga <- colData(rse_gene_tcga)
+all_cols <- colnames(metadata_tcga)
+
+diagnosis_cols <- grep("^tcga\\.gdc_cases\\.diagnoses", all_cols, value = TRUE)
+print(diagnosis_cols)
+
+demo_cols <- grep("^tcga\\.gdc_cases\\.demographic", all_cols, value = TRUE)
+print(demo_cols)
+
+```
+
+```{r}
+rse_gene_tcga
+```
+
+## 2.1. Dataset Reduction
+
+**spiegare il problema che siccome di dati normali abbiamo quasi 3000 e solo 200 circa di dati con tumore dobbiamo fare una selezione per cercare di eliminare questo bias**
+
+```{r}
+md_gtex <- as.data.frame(colData(rse_gene_BRAIN))
+md_tcga <- as.data.frame(colData(rse_gene_tcga))
+```
+
+```{r}
+gtex_counts <- as.data.frame(table(md_gtex$gtex.smtsd))
+colnames(gtex_counts) <- c("Region", "Count")
+
+ggplot(gtex_counts, aes(x = reorder(Region, -Count), y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "GTEx Sample Distribution by Brain Region",
+       x = "Region", 
+       y = "Number of Samples")
+```
+
+```{r}
+tcga_site_counts <- as.data.frame(table(md_tcga$tcga.gdc_cases.project.primary_site))
+colnames(tcga_site_counts) <- c("Region", "Count")
+
+ggplot(tcga_site_counts, aes(x = reorder(Region, -Count), y = Count)) +
+  geom_bar(stat = "identity", fill = "firebrick") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "TCGA Sample Distribution by Anatomical Region",
+       x = "Primary Site", 
+       y = "Number of Samples")
+
+```
+
+The initial dataset was highly unbalanced, with over 3,000 healthy samples (GTEx) compared to approximately 180 tumor samples (TCGA). To ensure a statistically sound comparison and prevent memory issues during processing, we have filtered the GTEx group to include only samples from the Brain - Cortex. This region is the most biologically relevant for comparison with Glioblastoma (GBM). This reduction to roughly 286 healthy samples creates a more balanced experimental design, which optimizes the statistical power of the differential expression analysis and allows for clearer visualization of sample clusters.
+
+```{r}
+rse_gene_BRAIN <- rse_gene_BRAIN[, rse_gene_BRAIN$gtex.smtsd == "Brain - Cortex"]
+```
+
+# 3. Data Exploration
+
+## 3.1. Age distribution
+
+```{r}
+age_gtex <- md_gtex$gtex.age
+head(age_gtex)
+
+age_tcga <- md_tcga$tcga.gdc_cases.diagnoses.age_at_diagnosis
+head(age_tcga)
+```
+
+```{r}
+gtex_bins   <- c(20,30,40,50,60,70,80, Inf)
+gtex_labels <- c("20-29","30-39","40-49","50-59","60-69","70-79","80+")
+
+df_age_perc <- bind_rows(
+  data.frame(
+    age_bin = factor(md_gtex$gtex.age, levels = gtex_labels),
+    dataset = "GTEx"
+  ),
+  data.frame(
+    age = as.numeric(md_tcga$tcga.gdc_cases.diagnoses.age_at_diagnosis) / 365.25,
+    dataset = "TCGA"
+  ) %>%
+    mutate(age_bin = cut(age, breaks = gtex_bins, labels = gtex_labels, right = FALSE))
+) %>%
+  filter(!is.na(age_bin)) %>%
+  count(dataset, age_bin) %>%
+  group_by(dataset) %>%
+  mutate(percent = n / sum(n) * 100) %>%
+  ungroup()
+
+
+```
+
+```{r}
+
+p <- ggplot(
+  df_age_perc,
+  aes(x = age_bin, y = percent, fill = dataset)
+) +
+  geom_col(position = "dodge") +
+  labs(
+    x = "Age range (years)",
+    y = "Percentage of samples",
+    title = "Normalized age distribution: GTEx vs TCGA"
+  ) +
+theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+
+```
+
+## 3.2. Sex Distribution
+
+```{r}
+sex_gtex <- md_gtex$gtex.sex %>%
+  recode(
+    `1` = "Male",
+    `2` = "Female"
+  )
+
+sex_tcga <- md_tcga$tcga.gdc_cases.demographic.gender
+```
+
+```{r}
+df_sex <- bind_rows(
+  data.frame(
+    sex = sex_gtex,
+    dataset = "GTEx"
+  ),
+  data.frame(
+    sex = sex_tcga,
+    dataset = "TCGA"
+  )
+) %>%
+  filter(!is.na(sex)) %>%
+  mutate(sex = str_to_title(sex)) %>% 
+  count(dataset, sex) %>%
+  group_by(dataset) %>%
+  mutate(percent = n / sum(n) * 100) %>%
+  ungroup()
+
+```
+
+```{r}
+p_sex <- ggplot(
+  df_sex,
+  aes(x = sex, y = percent, fill = dataset)
+) +
+  geom_col(position = "dodge") +
+  labs(
+    x = "Sex",
+    y = "Percentage of samples",
+    title = "Sex distribution: GTEx vs TCGA"
+  ) +
+  theme_minimal()
+
+ggplotly(p_sex)
+
+```
+
+## 3.3. RNA Quality
+
+```{r}
+
+df_qc_long <- bind_rows(
+  md_gtex %>%
+    transmute(
+      dataset = "GTEx",
+      avgq = recount_seq_qc.avgq,
+      errq = recount_seq_qc.errq
+    ),
+  md_tcga %>%
+    transmute(
+      dataset = "TCGA",
+      avgq = recount_seq_qc.avgq,
+      errq = recount_seq_qc.errq
+    )
+) %>%
+  pivot_longer(
+    cols = c(avgq, errq),
+    names_to = "metric",
+    values_to = "value"
+  ) %>%
+  filter(!is.na(value))
+
+```
+
+```{r}
+p_qc_facet <- ggplot(
+  df_qc_long,
+  aes(x = dataset, y = value, fill = dataset)
+) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  facet_wrap(~ metric, scales = "free_y",
+             labeller = as_labeller(c(
+               avgq = "Average base quality (avgq)",
+               errq = "Base error rate (errq)"
+             ))) +
+  labs(
+    x = "",
+    y = "",
+    title = "RNA-seq quality metrics comparison: GTEx vs TCGA"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold")
+  )
+
+ggplotly(p_qc_facet)
+
+```
+
+# 4. Different Gene Expression Analysis (Bulk RNA-seq)
+
+```{r}
+counts_gtex <- transform_counts(rse_gene_BRAIN)
+counts_tcga <- transform_counts(rse_gene_tcga)
+
+common_genes <- intersect(rownames(counts_gtex), rownames(counts_tcga))
+
+counts_gtex2 <- counts_gtex[common_genes, ]
+counts_tcga2 <- counts_tcga[common_genes, ]
+
+count_matrix <- cbind(counts_gtex2, counts_tcga2)
+```
+
+```{r}
+count_matrix <- as.data.frame(count_matrix)
+head(count_matrix)
+```
+
+## 4.1. Quality Control
+
+### 4.1.1. Normalization
+
+**Counts Per Million (CPM)**
+
+For a given gene *i* in sample *j*, the CPM is calculated as:
+
+$$
+\text{CPM}_{ij} = \left( \frac{\text{Raw count}_{ij}}{\sum_{k=1}^{N} \text{Raw count}_{kj}} \right) \times 10^6
+$$
+
+Where:
+
+-   $\text{Raw count}_{ij}$: number of reads for gene *i* in sample *j*\
+-   ${\sum_{k=1}^{N} \text{Raw count}_{kj}}$: total number of reads for all genes in sample *j*\
+-   The multiplication by \$ 10\^6 \$ scales the expression to "per million" units
+
+```{r cpm-filter}
+# Obtain CPMs
+CPMs <- cpm(count_matrix)
+# Have a look at the output
+CPMs <- as.data.frame(CPMs)
+head(CPMs)
+
+```
+
+**Filtering lowly expressed genes**
+
+Genes with very low counts across all libraries provide little evidence for differential expression and they interfere with some of the statistical approximations that are used later in the pipeline. They also add to the multiple testing burden when estimating false discovery rates, reducing power to detect differentially expressed genes. These genes should be filtered out prior to further analysis.
+
+There are a few ways to filter out lowly expressed genes. When there are biological replicates in each group, in this case we have a sample size of 2 in each group, we favour filtering on a minimum counts per million threshold present in at least 2 samples. Two represents the smallest sample size for each group in our experiment. In this dataset, we choose to retain genes if they are expressed at a counts-per-million (CPM) above 0.5 in at least two samples.
+
+We' ll use the cpm function from the edgeR library (M D Robinson, McCarthy, and Smyth 2010) to generate the CPM values and then filter. Note that by converting to CPMs we are normalising for the different sequencing depths for each sample.
+
+```{r cpm-thresh}
+# Which values in myCPM are greater than 0.5?
+thresh <- CPMs > 0.3
+# This produces a logical matrix with TRUEs and FALSEs
+thresh <- as.data.frame(thresh)
+head(thresh)
+```
+
+```{r cpm-keep}
+# Summary of how many TRUEs there are in each row
+table(rowSums(thresh))
+
+
+# This filter removes genes that are only detected in one sample or not detected at all, ensuring that only genes with evidence of expression in multiple samples are kept for further analysis
+keep <- rowSums(thresh) >= 2
+# Subset the rows of countdata to keep the more highly expressed genes
+counts.keep <- count_matrix[keep,]
+dim(counts.keep)
+```
+
+As a general rule, a good threshold can be chosen by identifying the CPM that corresponds to a count of 10, which in this case is about 0.3. You should filter with CPMs rather than filtering on the counts directly, as the latter does not account for differences in library sizes between samples.
+
+Another way in doing so is using the built in function `filterByExpr()` of the edgeR package, however to do so we would need more information such as the design of the study and the division in groups because the function is testing if a gene wil be statistically significant in function of the experiment setup.
+
+```{r cpm-plot}
+# Let's have a look and see whether our threshold of 0.5 does indeed correspond to a count of about 10-15 by Plotting the expression profile of the first sample (First column)
+plot(CPMs[,1],count_matrix[,1],ylim=c(0,20),xlim=c(0,2))
+abline(v=0.3)
+
+```
+
+```{r}
+counts_filtered <- as.data.frame(counts.keep)
+head(counts_filtered)
+```
+
+**Normalization for Composition Bias (TMM)**
+
+While CPM normalization accounts for differences in sequencing depth (library size), it does not address **composition bias**. Composition bias occurs when a small number of highly expressed genes dominate the total pool of RNA in a library, artificially deflating the relative counts of all other genes.
+
+We apply **TMM** normalization instead of **TPM** because:
+
+-   **TPM** is for comparing different genes **within** one sample (it corrects for gene length).
+
+-   **TMM** is for comparing the same gene **between** different samples (Healthy vs. Tumor). It corrects for **composition bias**, ensuring that a few highly expressed genes do not skew the results for the entire library.
+
+```{r}
+# Create DGEList object
+dgeObj <- DGEList(counts = counts_filtered)
+```
+
+```{r}
+# Calculate TMM normalization factors
+dgeObj <- calcNormFactors(dgeObj, method = "TMM")
+```
+
+```{r}
+# Check normalization factors (should be around 1)
+head(dgeObj$samples)
+```
+
+### 4.1.2. Unsupervised Clustering
+
+```{r}
+logcounts_all <- cpm(dgeObj, log = TRUE)
+pca_res <- prcomp(t(logcounts_all), scale. = TRUE)
+pca_df <- as.data.frame(pca_res$x)
+
+samples_gtex <- colnames(counts_gtex2)
+samples_tcga <- colnames(counts_tcga2)
+
+pca_df$Group <- c(rep("GTEx", length(samples_gtex)), rep("TCGA", length(samples_tcga)))
+pca_df$SampleID <- rownames(pca_df)
+
+pca_df$Sex <- c(
+  md_gtex[samples_gtex, ]$gtex.sex %>% recode(`1` = "Male", `2` = "Female"),
+  md_tcga[samples_tcga, ]$tcga.gdc_cases.demographic.gender %>% str_to_title()
+)
+
+pca_df$Age <- c(
+  md_gtex[samples_gtex, ]$gtex.age,
+  as.character(round(as.numeric(md_tcga[samples_tcga, ]$tcga.gdc_cases.diagnoses.age_at_diagnosis) / 365.25, 0))
+)
+
+pca_df$AvgQ <- c(md_gtex[samples_gtex, ]$recount_seq_qc.avgq, 
+                 md_tcga[samples_tcga, ]$recount_seq_qc.avgq)
+
+# Variabile numerica per il menu a tendina
+pca_df$AgeNumeric <- as.numeric(gsub("[^0-9]", "", pca_df$Age))
+```
+
+```{r}
+ggplot(pca_df, aes(x = PC1, y = PC2, color = Group)) +
+  geom_point(size = 3, alpha = 0.7) +
+  theme_minimal() +
+  scale_color_manual(values = c("GTEx" = "blue", "TCGA" = "red")) +
+  labs(title = "Unsupervised Clustering: PCA",
+       subtitle = "Analysis based on the full set of filtered genes",
+       x = paste0("PC1 (", round(100*summary(pca_res)$importance[2,1], 1), "%)"),
+       y = paste0("PC2 (", round(100*summary(pca_res)$importance[2,2], 1), "%)"))
+
+```
+
+```{r}
+p_inter <- plot_ly(pca_df, x = ~PC1, y = ~PC2, 
+             symbol = ~Group,
+             symbols = c('circle', 'x'),
+             text = ~paste("Sample:", SampleID, "<br>Sex:", Sex, "<br>Age:", Age, "<br>AvgQ:", AvgQ),
+             type = "scatter", mode = "markers",
+             marker = list(size = 10, opacity = 0.8)) %>%
+  layout(
+    title = "Interactive PCA: Metadata Exploration",
+    xaxis = list(title = "PC1"),
+    yaxis = list(title = "PC2"),
+    updatemenus = list(
+      list(
+        x = 0.05, y = 1, xanchor = "left", yanchor = "top",
+        buttons = list(
+          list(method = "restyle",
+               args = list("marker.color", list(ifelse(pca_df$Group == "GTEx", "blue", "red"))),
+               label = "Color by Dataset"),
+          list(method = "restyle",
+               args = list("marker.color", list(ifelse(pca_df$Sex == "Male", "#1f77b4", "#e377c2"))),
+               label = "Color by Sex"),
+          list(method = "restyle",
+               args = list("marker.color", list(pca_df$AgeNumeric),
+                           "marker.colorscale", "Viridis", "marker.showscale", TRUE),
+               label = "Color by Age"),
+          list(method = "restyle",
+               args = list("marker.color", list(pca_df$AvgQ),
+                           "marker.colorscale", "Plasma", "marker.showscale", TRUE),
+               label = "Color by RNA Quality")
+        )
+      )
+    )
+  )
+
+p_inter
+```
+
+```{r}
+# We estimate the variance for each row in the logcounts matrix
+var_genes <- apply(logcounts_all, 1, var)
+
+# Get the gene names for the top 100 most variable genes
+select_var <- names(sort(var_genes, decreasing=TRUE))[1:100]
+
+# Keep the expression values for the top 100 variable genes
+highly_variable_lcpm <- logcounts_all[select_var,]
+dim(highly_variable_lcpm)
+
+# Setup colors
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+# Assign blue and red to different datasets
+col.cell <- ifelse(pca_df$Group == "GTEx", "blue", "red")
+
+
+heatmap.2(highly_variable_lcpm, 
+          col=rev(morecols(50)),
+          trace="none", 
+          main="Top 100 most variable genes across samples",
+          ColSideColors=col.cell,
+          scale="row",
+          labCol="",      # Hide sample names for clarity
+          cexRow=0.6,     # Adjust gene name size
+          srtCol=45
+)
+
+# Add Legend
+legend("topright", 
+       legend = c("GTEx (Healthy)", "TCGA (Tumor)"), 
+       col = c("blue", "red"), 
+       lty = 1, 
+       lwd = 10, 
+       cex = 0.7)
+```
+
+```{r}
+# We estimate the variance for each row in the logcounts matrix
+var_genes <- apply(logcounts_all, 1, var)
+
+# Get the gene names for the top 100 LEAST variable genes (lowest variance)
+select_var_low <- names(sort(var_genes, decreasing = FALSE))[1:100]
+
+# Keep the expression values for the top 100 least variable genes
+least_variable_lcpm <- logcounts_all[select_var_low,]
+dim(least_variable_lcpm)
+
+# Setup colors
+mypalette <- brewer.pal(11,"RdYlBu")
+morecols <- colorRampPalette(mypalette)
+
+# Assign blue and red to different datasets
+col.cell <- ifelse(pca_df$Group == "GTEx", "blue", "red")
+
+
+heatmap.2(least_variable_lcpm, 
+          col=rev(morecols(50)),
+          trace="none", 
+          main="Top 100 LEAST variable genes across samples",
+          ColSideColors=col.cell,
+          scale="row",
+          labCol="",      # Hide sample names for clarity
+          cexRow=0.6,     # Adjust gene name size
+          srtCol=45
+)
+
+# Add Legend
+legend("topright", 
+       legend = c("GTEx (Healthy)", "TCGA (Tumor)"), 
+       col = c("blue", "red"), 
+       lty = 1, 
+       lwd = 10, 
+       cex = 0.7)
+```
+
+## 4.2. DE Analysis
+
+**Count the reads for any sample**
+
+Here we visualize the library size for every sample
+
+```{r}
+idx_gtex <- 1:ncol(counts_gtex2)
+idx_tcga <- (ncol(counts_gtex2) + 1):(ncol(counts_gtex2) + ncol(counts_tcga2))
+
+lib_sizes_gtex <- dgeObj$samples$lib.size[idx_gtex]
+names(lib_sizes_gtex) <- colnames(dgeObj)[idx_gtex]
+low_10_gtex <- sort(lib_sizes_gtex)[1:10]
+
+lib_sizes_tcga <- dgeObj$samples$lib.size[idx_tcga]
+names(lib_sizes_tcga) <- colnames(dgeObj)[idx_tcga]
+low_10_tcga <- sort(lib_sizes_tcga)[1:10]
+
+low_20_total <- c(low_10_gtex, low_10_tcga)
+
+par(mar = c(10, 4, 4, 2)) 
+barplot(low_20_total / 1e6, 
+        las = 2,
+        ylab = "Library size (millions)", 
+        main = "Bottom 10 Samples by Library Size (GTEx vs TCGA)",
+        col = c(rep("blue", 10), rep("red", 10)),
+        cex.names = 0.7) # Rimpicciolisce i nomi delle colonne per farli stare
+
+legend("topleft", legend = c("GTEx (Lowest 10)", "TCGA (Lowest 10)"), 
+       fill = c("blue", "red"), bty = "n")
+
+
+```
+
+***Plot the distribution of expression for sample***
+
+```{r}
+sample_means <- colMeans(CPMs)
+
+idx_gtex <- 1:ncol(counts_gtex2)
+idx_tcga <- (ncol(counts_gtex2) + 1):(ncol(counts_gtex2) + ncol(counts_tcga2))
+
+low_10_gtex_names <- names(sort(sample_means[idx_gtex])[1:10])
+low_10_tcga_names <- names(sort(sample_means[idx_tcga])[1:10])
+
+logcounts <- cpm(count_matrix, log=TRUE)
+sub_logcounts <- logcounts[, c(low_10_gtex_names, low_10_tcga_names)]
+```
+
+```{r}
+par(mar = c(10, 4, 4, 2))
+boxplot(sub_logcounts, 
+        las = 2, 
+        main = "Boxplot of Log2-CPMs (Bottom 10 Samples per Group)",
+        ylab = "Log2 Counts per Million",
+        col = c(rep("blue", 10), rep("red", 10)),
+        names = c(paste0("GTEx_", 1:10), paste0("TCGA_", 1:10))) 
+
+abline(h = median(logcounts), col = "darkgreen", lwd = 2, lty = 2)
+legend("topright", legend = c("GTEx (Lowest Mean)", "TCGA (Lowest Mean)", "Global Median"), 
+       fill = c("blue", "red", NA), border = c("black", "black", NA),
+       lty = c(NA, NA, 2), col = c(NA, NA, "darkgreen"), bty = "n")
+```
+
+### 4.2.1. Naive Approach
+
+```{r}
+
+# Save the normalized data into a new variable
+simple_deg <- logcounts_all 
+
+# Gather the columns corresponding to the 2 groups
+gtex_cols <- which(pca_df$Group == "GTEx")
+tcga_cols <- which(pca_df$Group == "TCGA")
+
+```
+
+**Perform a t-test on the groups and optain the p-value**
+
+```{r}
+p_values <- apply(simple_deg, 1, function(x) {
+  t.test(x[gtex_cols], x[tcga_cols])$p.value
+})
+```
+
+**Calculate foldchange**
+
+```{r}
+log2FC <- rowMeans(simple_deg[, tcga_cols]) - rowMeans(simple_deg[, gtex_cols])
+results_ttest <- data.frame(
+  gene = rownames(simple_deg),
+  log2FC = log2FC,
+  p_value = p_values
+)
+results_ttest
+```
+
+**Adjust p-values using Benjamini-Hochberg**
+
+```{r}
+
+results_ttest$adj_p <- p.adjust(results_ttest$p_value, method = "BH")
+
+results_ttest$significant <- with(results_ttest, 
+                                  ifelse(adj_p < 0.01 & abs(log2FC) > 1, "Significant", "Non Significant"))
+```
+
+**Plot the result using vulgano plot**
+
+```{r}
+results_ttest$direction <- with(results_ttest, 
+                                 ifelse(adj_p < 0.01 & log2FC > 1, "Up Regulated",
+                                 ifelse(adj_p < 0.01 & log2FC < -1, "Down Regulated", "Non Significant")))
+
+ggplot(results_ttest, aes(x = log2FC, y = -log10(adj_p), color = direction)) +
+  geom_point(alpha = 0.5, size = 1.5) + 
+  scale_color_manual(values = c("Down Regulated" = "blue", 
+                                "Non Significant" = "grey", 
+                                "Up Regulated" = "red")) +
+  theme_minimal() + 
+  
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "black") + 
+  geom_hline(yintercept = -log10(0.01), linetype = "dashed", color = "black") +
+  
+  
+  labs(title = "Volcano Plot: GBM vs Healthy Cortex (t-test)",
+       subtitle = "Thresholds: |Log2FC| > 1 and FDR < 0.01",
+       x = "log2 Fold Change",
+       y = "-log10 FDR (BH Adjusted)") +
+  
+  theme(legend.title = element_blank(),
+        legend.position = "bottom")
+```
+
+### 4.2.2. EdgeR Approach
+
+The use of generalized linear models (GLMs) in edgeR allows us to model biological variability (overdispersion) inherent in RNA-seq data, overcoming the limitations of simple t-tests.
+
+**Create a Design Matrix**
+
+The design matrix defines the mathematical framework for the statistical comparison. In our case, we compare the tumor group (TCGA) against the healthy baseline (GTEx).
+
+```{r}
+
+# 1. Initialize DGEList object
+dgeObj <- DGEList(counts = count_matrix)
+
+# 2. Assign groups and filter lowly expressed genes
+group <- factor(pca_df$Group, levels = c("GTEx", "TCGA"))
+dgeObj$samples$group <- group
+
+keep <- filterByExpr(dgeObj, group = group, min.count = 50, min.prop = 0.4)
+dgeObj <- dgeObj[keep, , keep.lib.sizes = FALSE]
+
+# 3. Normalization and Design Matrix
+dgeObj <- calcNormFactors(dgeObj, method = "TMM")
+design <- model.matrix(~ group)
+colnames(design) <- c("Intercept", "TCGA_vs_GTEx")
+
+# Print the design matrix structure (first few rows)
+print("Design Matrix (Head):")
+print(head(design))
+
+# Print the number of genes remaining after filtering
+print(paste("Number of genes after filtering:", nrow(dgeObj)))
+
+```
+
+**Dispersion Estimation**
+
+Estimating dispersion is a crucial step to distinguish true biological signal from random technical noise.
+
+```{r}
+# 1. Estimate Common Dispersion (Usually fast)
+print("Estimating common dispersion...")
+dgeObj <- estimateCommonDisp(dgeObj, design)
+
+# 2. Estimate Trended Dispersion (This is what usually takes time)
+print("Estimating trended dispersion...")
+dgeObj <- estimateGLMTrendedDisp(dgeObj, design)
+
+# 3. Estimate Tagwise Dispersion (Final step)
+print("Estimating tagwise dispersion...")
+dgeObj <- estimateGLMTagwiseDisp(dgeObj, design)
+
+
+# Visualize the BCV
+plotBCV(dgeObj)
+```
+
+**GLM Fitting and Likelihood Ratio Test (LRT)**
+
+```{r}
+# Now that dispersions are estimated, we can fit the model
+fit <- glmFit(dgeObj, design)
+lrt <- glmLRT(fit, coef = 2)
+
+# 6. Extract results
+results_edgeR <- as.data.frame(topTags(lrt, n = Inf))
+results_edgeR$is_significant <- results_edgeR$FDR < 0.05 & abs(results_edgeR$logFC) > 1
+
+head(results_edgeR)
+```
+
+```{r}
+# Extract results (using 'lrt' instead of 'lrt.BvsL')
+results_edgeR <- as.data.frame(topTags(lrt, n = Inf))
+
+# Add significance labels
+results_edgeR$direction <- with(results_edgeR, 
+                                 ifelse(FDR < 0.01 & logFC > 1, "Up Regulated",
+                                 ifelse(FDR < 0.01 & logFC < -1, "Down Regulated", 
+                                 "Non Significant")))
+
+# Create Volcano Plot
+ggplot(results_edgeR, aes(x = logFC, y = -log10(FDR), color = direction)) +
+  geom_point(alpha = 0.5, size = 1.2) +
+  scale_color_manual(values = c("Non Significant" = "grey", 
+                                "Up Regulated" = "red", 
+                                "Down Regulated" = "blue")) +
+  theme_minimal() +
+  # Add threshold lines
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", alpha = 0.5) +
+  geom_hline(yintercept = -log10(0.01), linetype = "dashed", alpha = 0.5) +
+  labs(title = "Volcano Plot: TCGA vs GTEx",
+       x = "log2 Fold Change",
+       y = "-log10 FDR") +
+  theme(legend.position = "bottom", legend.title = element_blank())
+```
+
+**Retrieve Gene Names**
+
+```{r}
+# Convert results to dataframe
+results <- as.data.frame(topTags(lrt, n = Inf))
+
+# Clean Ensembl IDs by removing version suffix
+clean_ids <- gsub("\\..*", "", rownames(results))
+
+# Map IDs to SYMBOL
+results$SYMBOL <- mapIds(org.Hs.eg.db,
+                         keys = clean_ids,
+                         column = "SYMBOL",
+                         keytype = "ENSEMBL",
+                         multiVals = "first")
+
+# Map IDs to GENENAME
+results$GENENAME <- mapIds(org.Hs.eg.db,
+                           keys = clean_ids,
+                           column = "GENENAME",
+                           keytype = "ENSEMBL",
+                           multiVals = "first")
+
+# Check the first few rows of the annotated results
+head(results)
+```
+
+**Find the gene symbols of the genes tested**
+
+```{r}
+# Map IDs to gene names (SYMBOL and GENENAME) for all tested genes
+gene_annotations <- AnnotationDbi::select(org.Hs.eg.db, 
+                                          keys = gsub("\\..*", "", rownames(dgeObj)), 
+                                          columns = c("SYMBOL", "GENENAME"), 
+                                          keytype = "ENSEMBL")
+
+# View the result
+head(gene_annotations)
+```
+
+**Overlapping set of DEGs (Upset Plot)**
+
+```{r}
+# filter the 2 datsets for log2fc and pvalue
+de_ttest <- results_ttest[abs(results_ttest$log2FC) > 1 & results_ttest$adj_p < 0.01, ]
+de_edgeR <- results[abs(results$logFC) > 1 & results$FDR < 0.01, ]
+genes_ttest <- de_ttest$gene
+genes_edgeR <- rownames(de_edgeR)
+gene_lists <- list("T-test" = genes_ttest, "EdgeR" = genes_edgeR)
+
+# Produce the UpSet plot to visualize consistency
+UpSetR::upset(UpSetR::fromList(gene_lists), 
+              nsets = 2, 
+              order.by = "freq", 
+              main.bar.color = "darkred", 
+              sets.bar.color = "blue")
+
+```
+
+**Function enrichment analysis on the genes we obtain through edgeR**
+
+```{r}
+upregulated_edgeR <- rownames(results[results$FDR < 0.05 & results$logFC > 1, ])
+upregulated_clean <- gsub("\\..*", "", upregulated_edgeR)
+
+# Perform GO enrichment analysis
+ego <- enrichGO(gene          = upregulated_clean,
+                OrgDb         = org.Hs.eg.db,
+                keyType       = "ENSEMBL",   
+                ont           = "BP",        
+                pAdjustMethod = "BH",        
+                pvalueCutoff  = 0.05,
+                qvalueCutoff  = 0.2,
+                readable      = TRUE)        
+
+# View the results
+dotplot(ego, showCategory=10)     
+```
+
+**Visualize same results with the network**
+
+```{r}
+ora_analysis_bp <- pairwise_termsim(ego, method = "JC")
+emapplot(ora_analysis_bp, color = "qvalue")
+```
+
+# 5. Protein-Protein Interaction (PPI) Network analysis
+
+### Rationale
+
+Genes do not act in isolation, but their protein products interact in complex networks to carry out cellular functions. Differential gene expression analysis identifies genes associated with the disease condition, but does not provide information on how these genes interact at the protein level.
+
+Protein–Protein Interaction (PPI) networks allow the integration of transcriptomic results with proteomic knowledge, enabling the identification of key proteins (hubs), functional modules, and dysregulated biological pathways involved in the disease. This network-based approach follows the principles of network medicine, where disease-associated genes tend to cluster into connected subnetworks (disease modules).
+
+```{r}
+library(STRINGdb)
+library(igraph)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(enrichplot)
+library(tidyverse)
+
+```
+
+```{r}
+deg_idx <- which(
+  results_edgeR$FDR < 0.05 &
+  abs(results_edgeR$logFC) > 1
+)
+
+deg_genes <- rownames(results_edgeR)[deg_idx]
+
+length(deg_genes)
+head(deg_genes)
+
+
+```
+
+Differentially expressed genes were selected using an edgeR-based analysis, applying a false discovery rate (FDR) threshold of 0.05 and an absolute log2 fold change greater than 1.
+
+```{r}
+deg_genes_clean <- sub("\\..*$", "", deg_genes)
+head(deg_genes_clean)
+```
+
+Gene identifiers were originally annotated using Ensembl IDs including version numbers. Version information was removed to ensure compatibility with downstream annotation databases.
+
+```{r}
+
+gene_mapping <- bitr(
+  deg_genes_clean,
+  fromType = "ENSEMBL",
+  toType   = "SYMBOL",
+  OrgDb    = org.Hs.eg.db
+)
+
+head(gene_mapping)
+```
+
+```{r}
+deg_symbols <- unique(gene_mapping$SYMBOL)
+
+length(deg_symbols)
+head(deg_symbols)
+```
+
+Ensembl gene identifiers were converted to gene symbols prior to PPI network construction. Genes that could not be mapped were excluded from downstream analyses.
+
+```{r}
+string_db <- STRINGdb$new(
+  version = "11.5",
+  species = 9606,
+  score_threshold = 700,
+  input_directory = ""
+)
+```
+
+```{r}
+mapped_genes <- string_db$map(
+  data.frame(gene = deg_symbols),
+  "gene",
+  removeUnmappedRows = TRUE
+)
+
+nrow(mapped_genes)
+head(mapped_genes)
+```
+
+### PPI Construction
+
+```{r}
+ppi_edges <- string_db$get_interactions(mapped_genes$STRING_id)
+
+ppi_graph <- graph_from_data_frame(
+  ppi_edges[, c("from", "to")],
+  directed = FALSE
+)
+```
+
+```{r}
+plot(
+  ppi_graph,
+  vertex.label = NA,
+  vertex.size = 3,
+  edge.color = "grey80",
+  vertex.color = "steelblue",
+  main = "Protein–Protein Interaction Network"
+)
+```
+
+The resulting PPI network is represented as an undirected graph, where nodes correspond to proteins and edges represent protein–protein interactions.
+
+```{r}
+deg <- degree(ppi_graph)
+bet <- betweenness(ppi_graph)
+```
+
+```{r}
+deg_df <- data.frame(degree = deg)
+
+ggplot(deg_df, aes(x = degree)) +
+  geom_histogram(bins = 40, fill = "steelblue", color = "black") +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    title = "Degree distribution of the PPI network",
+    x = "Node degree",
+    y = "Frequency (log scale)"
+  )
+
+```
+
+The right-skewed degree distribution indicates a scale-free topology, a common property of biological interaction networks characterized by the presence of highly connected hub proteins.
+
+```{r}
+top_hubs <- sort(deg, decreasing = TRUE)[1:10]
+top_hubs
+
+```
+
+```{r}
+centrality_df <- data.frame(
+  protein = names(deg),
+  degree = deg,
+  betweenness = bet
+)
+
+ggplot(centrality_df, aes(x = degree, y = betweenness)) +
+  geom_point(alpha = 0.6) +
+  scale_y_log10() +
+  theme_minimal() +
+  labs(
+    title = "Degree vs betweenness centrality",
+    x = "Degree",
+    y = "Betweenness (log scale)"
+  )
+
+```
+
+While hub proteins are characterized by a high number of interactions, proteins with high betweenness centrality act as connectors between different regions of the network and may coordinate distinct functional modules.
+
+```{r}
+communities <- cluster_louvain(ppi_graph)
+
+plot(
+  communities,
+  ppi_graph,
+  vertex.label = NA,
+  vertex.size = 4,
+  main = "PPI network communities (Louvain clustering)"
+)
+
+```
+
+```{r}
+
+entrez_ids <- bitr(
+  mapped_genes$gene,
+  fromType = "SYMBOL",
+  toType = "ENTREZID",
+  OrgDb = org.Hs.eg.db
+)
+
+kegg_enrich <- enrichKEGG(
+  gene = entrez_ids$ENTREZID,
+  organism = "hsa",
+  pvalueCutoff = 0.05
+)
+
+dotplot(kegg_enrich, showCategory = 10)
+
+```
+
+Functional enrichment analysis of the PPI network revealed significant over-representation of signaling pathways related to cell communication, calcium signaling, and extracellular matrix interactions. Although some KEGG pathways are annotated as neuronal, they include general signaling components such as receptors and ion channels that are also active in non-neuronal tissues, including cancer. Overall, these results support the biological relevance of the identified PPI network and highlight dysregulated signaling processes associated with the disease.
+
+```{r}
+components_ppi <- components(ppi_graph)
+
+table(components_ppi$csize)[1:5]
+largest_comp_size <- max(components_ppi$csize)
+largest_comp_size
+
+
+```
+
+Most proteins in the PPI network belong to a single large connected component, suggesting the presence of a coherent disease-associated module rather than isolated interactions.
+
+```{r}
+network_density <- edge_density(ppi_graph)
+avg_degree <- mean(deg)
+
+network_density
+avg_degree
+```
+
+```{r}
+lcc <- induced_subgraph(
+  ppi_graph,
+  V(ppi_graph)[components_ppi$membership ==
+               which.max(components_ppi$csize)]
+)
+# Matrice delle distanze (igraph)
+dist_mat <- igraph::distances(lcc)
+
+# Converto in vettore, tolgo Inf/NA, poi costruisco il data.frame
+dist_vec <- as.vector(dist_mat)
+dist_vec <- dist_vec[is.finite(dist_vec)]
+
+dist_df <- data.frame(distance = dist_vec)
+
+ggplot(dist_df, aes(x = distance)) +
+  geom_histogram(bins = 30, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(
+    title = "Shortest path length distribution",
+    x = "Shortest path length",
+    y = "Frequency"
+  )
+
+```
+# 6. Single-Cell RNA-seq Analysis
+
+## 6.1. Introduction
+
+To complement our bulk RNA-seq analysis comparing healthy brain cortex (GTEx) with glioblastoma (TCGA), we now perform single-cell RNA-seq analysis. This allows us to:
+
+- Identify specific cell types present in brain cortex tissue
+- Examine cell-type-specific expression patterns
+- Validate bulk RNA-seq findings at cellular resolution
+- Discover heterogeneous cell populations in the brain
+
+## 6.2. Package Installation and Loading
+
+```{r}
+# Bioconductor packages
+if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install(c("scRNAseq", "SingleCellExperiment", "Seurat", "SeuratData"), ask = FALSE)
+
+packages <- c("scRNAseq", "SingleCellExperiment", "Seurat", "SeuratData")
+install_if_missing <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    BiocManager::install(pkg, ask = FALSE)
+  }
+}
+lapply(packages, install_if_missing)
+```
+
+```{r}
+# Load libraries
+library(scRNAseq)
+library(Seurat)
+library(SingleCellExperiment)
+library(dplyr)      # For data manipulation
+library(ggplot2)    # For plotting
+library(patchwork)  # For combining plots (needed for p1 + p2 + p3)
+
+```
+## 6.3. Search and Load Brain Cortex Dataset
+### 6.3.1. Search for Brain/Cortex Datasets
+
+```{r}
+# Search for cortex-related datasets
+brain_datasets <- searchDatasets("cortex")
+cat("Brain/Cortex datasets available:\n")
+print(brain_datasets[, c("name", "title", "version", "path", "description")])
+```
+### 6.3.2. Select Dataset
+We select the human cortex dataset (hu-cortex-2017) which provides single-nucleus RNA-seq data from human cortex, matching the tissue type used in our bulk RNA-seq analysis (GTEx Brain - Cortex).
+
+
+```{r}
+# Check available paths for this dataset
+name <- "hu-cortex-2017"
+version <- "2023-12-20"
+
+cat("Available paths for", name, ":\n")
+available_paths <- listPaths(name, version)
+print(available_paths)
+
+```
+### 6.3.3. Download and Load Dataset
+```{r}
+# Fetch the dataset
+path = "cortex"
+cortex_sc <- fetchDataset(name,version,path)
+cortex_sc
+
+# Display dataset information
+cat("\n=== Dataset Loaded Successfully ===\n")
+print(cortex_sc)
+cat("\nNumber of genes:", nrow(cortex_sc), "\n")
+cat("Number of cells:", ncol(cortex_sc), "\n")
+```
+
+## 6.4. Explore Dataset Metadata
+```{r}
+# View available metadata columns
+cat("Available metadata columns:\n")
+metadata_cols <- colnames(colData(cortex_sc))
+print(metadata_cols)
+
+# Display metadata content
+cat("\nMetadata content:\n")
+head(colData(cortex_sc))
+```
+
+### 6.4.1. Metadata Summary
+```{r}
+cat("=== Dataset Metadata Summary ===\n\n")
+cat("Available columns:", length(metadata_cols), "\n")
+cat("Columns:", paste(metadata_cols, collapse = ", "), "\n\n")
+
+# Check protocol column
+if("protocol" %in% metadata_cols) {
+  cat("Protocol values:\n")
+  print(table(cortex_sc$protocol))
+}
+
+cat("\n**Note:** This dataset does not include pre-annotated cell types.\n")
+cat("We will identify cell types through unsupervised clustering and marker gene analysis.\n")
+```
+### 6.4.2. Basic Data Quality Metrics
+```{r}
+print(cortex_sc)
+cat("\nNumber of genes:", nrow(cortex_sc), "\n")
+cat("Number of cells:", ncol(cortex_sc), "\n")
+```
+## 6.5. Prepare Data for Seurat
+Objective
+
+The scRNA-seq dataset was downloaded as a SingleCellExperiment object.
+Before performing downstream single-cell analysis (normalization, dimensionality reduction, clustering), the data must be converted into a Seurat object, which requires:
+
+A standard sparse count matrix
+
+Unique gene (feature) names
+
+Unique cell identifiers
+
+Proper integration of cell-level metadata
+### 6.5.1 Inspect available assays
+We first verify which assays are available in the dataset and confirm the presence of raw counts.
+```{r}
+# List available assays
+assays(cortex_sc)
+
+# Access the raw counts matrix
+assay(cortex_sc, "counts")
+``` 
+
+### 6.5.2 Inspect dataset metadata
+```{r}
+colnames(colData(cortex_sc))
+
+```
+
+```{r}
+colnames(rowData(cortex_sc))
+head(rowData(cortex_sc))
+
+```
+No gene-level metadata is provided (rowData is empty), meaning gene identifiers are stored directly as row names in the count matrix.
+
+### 6.5.3 Extract and standardize the count matrix
+```{r}
+# Extract raw counts
+counts <- assay(cortex_sc, "counts")
+
+# Convert to standard sparse matrix
+counts <- as(counts, "dgCMatrix")
+
+
+```
+
+### 6.5.4 Ensure unique gene and cell identifiers
+```{r}
+# Make feature (gene) names unique
+rownames(counts) <- make.unique(rownames(counts))
+
+# Make cell names unique
+colnames(counts) <- make.unique(colnames(counts))
+
+
+```
+
+### 6.5.5 Create the Seurat object
+```{r}
+so <- CreateSeuratObject(
+  counts = counts,
+  project = "hu_cortex_2017_cortex"
+)
+
+so
+
+```
+
+### 6.5.6 Add cell-level metadata
+```{r}
+meta <- as.data.frame(colData(cortex_sc))
+rownames(meta) <- colnames(counts)
+
+so <- AddMetaData(so, metadata = meta)
+
+head(so@meta.data)
+
+
+```
+## 6.6. Quality Control and Filtering
+
+### 6.6.1. Calculate QC Metrics
+
+```{r}
+# Calculate percentage of mitochondrial genes
+so[["percent.mt"]] <- PercentageFeatureSet(so, pattern = "^MT-")
+
+# View updated metadata
+head(so@meta.data)
+```
+
+### 6.6.2. Visualize QC Metrics
+```{r}
+# Violin plots for quality control metrics
+VlnPlot(so, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), 
+        ncol = 3, pt.size = 0.1)
+```
+
+### 6.6.3. Feature Scatter Plots
+
+```{r}
+library(ggplot2)
+# Scatter plot to examine relationship between total counts and detected genes
+FeatureScatter(so, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") +
+  geom_smooth(method = "lm")
+
+# Scatter plot for mitochondrial content vs gene count
+FeatureScatter(so, feature1 = "nCount_RNA", feature2 = "percent.mt") +
+  geom_smooth(method = "lm")
+```
+
+### 6.6.4. Filter Cells
+```{r}
+# Filter based on QC metrics
+# Adjust thresholds based on your violin plots
+so <- subset(so, subset = nFeature_RNA > 200 & 
+                          nFeature_RNA < 2500 & 
+                          percent.mt < 5)
+
+cat("Cells after filtering:", ncol(so), "\n")
+cat("Genes:", nrow(so), "\n")
+
+```
+
+
+## 6.7. Normalization
+
+Normalize the raw gene expression data to enable meaningful comparison between cells. The `NormalizeData()` function applies log-normalization:
+
+$$
+\text{Normalized}_{ij} = \log_1p \left( \frac{\text{Counts}_{ij}}{\sum_{k} \text{Counts}_{kj}} \times 10000 \right)
+$$
+
+This corrects for differences in sequencing depth between cells while preserving biological differences.
+
+```{r}
+# Log-normalize the data
+so <- NormalizeData(so, 
+                    normalization.method = "LogNormalize", 
+                    scale.factor = 10000)
+
+cat("Normalization complete.\n")
+cat("Normalized data stored in 'data' layer.\n")
+```
+
+## 6.8. Identify Highly Variable Features
+
+Identify genes that show high cell-to-cell variation. These genes are most informative for distinguishing cell types and will be used for downstream analysis.
+
+```{r}
+# Find variable features using variance stabilizing transformation
+so <- FindVariableFeatures(so, 
+                           selection.method = "vst", 
+                           nfeatures = 2000)
+
+# Identify the top 10 most variable genes
+top10_var <- head(VariableFeatures(so), 10)
+cat("Top 10 most variable genes:\n")
+print(top10_var)
+```
+
+### 6.8.1. Visualize Variable Features
+```{r}
+# Plot variable features
+plot1 <- VariableFeaturePlot(so)
+plot2 <- LabelPoints(plot = plot1, points = top10_var, repel = TRUE)
+plot2
+```
+
+## 6.9. Scale Data
+
+Scaling standardizes gene expression values by centering (subtracting the mean) and scaling (dividing by standard deviation). This ensures that highly expressed genes do not dominate downstream analyses.
+
+```{r}
+# Scale all genes
+all_genes <- rownames(so)
+so <- ScaleData(so, features = all_genes)
+
+cat("Scaling complete.\n")
+cat("Scaled data dimensions:", dim(so[["RNA"]]$scale.data), "\n")
+```
+
+## 6.10. Linear Dimensionality Reduction (PCA)
+
+Principal Component Analysis (PCA) reduces the dimensionality of the data while preserving the most important sources of variation.
+
+```{r}
+# Run PCA on variable features
+so <- RunPCA(so, features = VariableFeatures(object = so))
+
+# View PCA results
+print(so[["pca"]], dims = 1:5, nfeatures = 5)
+```
+
+### 6.10.1. Visualize PCA Results
+```{r}
+# Visualize top genes contributing to PC1 and PC2
+VizDimLoadings(so, dims = 1:2, reduction = "pca")
+```
+
+```{r}
+# PCA plot
+DimPlot(so, reduction = "pca")
+```
+
+```{r}
+# Heatmap of top genes in first principal component
+DimHeatmap(so, dims = 1, cells = 500, balanced = TRUE)
+```
+
+### 6.10.2. Determine Dimensionality (Elbow Plot)
+
+The elbow plot helps determine how many principal components capture meaningful biological signal.
+
+```{r}
+# Elbow plot to determine optimal number of PCs
+ElbowPlot(so, ndims = 30)
+```
+
+Based on the elbow plot, we select the number of PCs where the curve starts to flatten. Typically 10-20 PCs capture most biological variation.
+
+## 6.11. Clustering
+
+### 6.11.1. Find Neighbors
+
+Construct a shared nearest neighbor (SNN) graph to identify similar cells.
+
+```{r}
+# Find neighbors using selected PCs (adjust dims based on elbow plot)
+so <- FindNeighbors(so, dims = 1:15)
+```
+
+### 6.11.2. Find Clusters
+
+Cluster cells using the Louvain algorithm at multiple resolutions to explore different granularities.
+
+```{r}
+# Cluster at multiple resolutions
+so <- FindClusters(so, resolution = c(0.1, 0.3, 0.5, 0.8, 1.0))
+
+# View clustering results in metadata
+head(so@meta.data)
+```
+
+```{r}
+# Compare different resolutions
+cat("Number of clusters at each resolution:\n")
+cat("Resolution 0.1:", length(unique(so$RNA_snn_res.0.1)), "clusters\n")
+cat("Resolution 0.3:", length(unique(so$RNA_snn_res.0.3)), "clusters\n")
+cat("Resolution 0.5:", length(unique(so$RNA_snn_res.0.5)), "clusters\n")
+cat("Resolution 0.8:", length(unique(so$RNA_snn_res.0.8)), "clusters\n")
+cat("Resolution 1.0:", length(unique(so$RNA_snn_res.1)), "clusters\n")
+```
+
+### 6.11.3. Set Cluster Identity
+
+Choose an appropriate resolution for downstream analysis.
+
+```{r}
+# Set identity to resolution 0.5 (adjust based on your data)
+Idents(so) <- "RNA_snn_res.0.5"
+
+cat("Active identity set to resolution 0.5\n")
+cat("Number of clusters:", length(unique(Idents(so))), "\n")
+```
+
+## 6.12. Non-linear Dimensionality Reduction (UMAP)
+
+UMAP provides a 2D visualization that preserves local and global structure of the data.
+
+```{r}
+# Run UMAP
+so <- RunUMAP(so, dims = 1:15)
+```
+
+### 6.12.1. Visualize UMAP
+```{r}
+# UMAP plot colored by cluster
+DimPlot(so, reduction = "umap", label = TRUE, pt.size = 0.5) +
+  ggtitle("UMAP - Clusters (Resolution 0.5)")
+```
+
+```{r}
+# Compare clustering at different resolutions
+p1 <- DimPlot(so, reduction = "umap", group.by = "RNA_snn_res.0.1", label = TRUE) + 
+  ggtitle("Resolution 0.1")
+p2 <- DimPlot(so, reduction = "umap", group.by = "RNA_snn_res.0.5", label = TRUE) + 
+  ggtitle("Resolution 0.5")
+p3 <- DimPlot(so, reduction = "umap", group.by = "RNA_snn_res.1", label = TRUE) + 
+  ggtitle("Resolution 1.0")
+
+p1 + p2 + p3
+```
+
+## 6.13. Cell Type Annotation
+
+### 6.13.1. Find Cluster Markers
+
+Identify marker genes that define each cluster. These genes are differentially expressed in one cluster compared to all others.
+
+```{r}
+# Find markers for all clusters
+all_markers <- FindAllMarkers(so, 
+                               only.pos = TRUE, 
+                               min.pct = 0.25, 
+                               logfc.threshold = 0.25)
+
+# View top markers per cluster
+top_markers <- all_markers %>%e
+  group_by(cluster) %>%
+  slice_max(n = 5, order_by = avg_log2FC)
+
+print(top_markers)
+```
+
+### 6.13.2. Visualize Top Markers
+```{r}
+# Get top 2 markers per cluster for visualization
+top2_markers <- all_markers %>%
+  group_by(cluster) %>%
+  slice_max(n = 2, order_by = avg_log2FC) %>%
+  pull(gene) %>%
+  unique()
+
+# Dot plot of top markers
+DotPlot(so, features = top2_markers) + 
+  RotatedAxis() +
+  ggtitle("Top Marker Genes per Cluster")
+```
+
+
+### 6.13.3. Annotate Clusters
+
+Based on marker gene expression, assign cell type labels to clusters.
+
+```{r}
+# Create a named vector mapping cluster numbers to cell types
+# IMPORTANT: Adjust these based on YOUR marker expression patterns!
+# This is an example - you need to examine your plots and assign accordingly
+
+# First, check current cluster IDs
+cat("Current cluster IDs:\n")
+print(levels(Idents(so)))
+
+# Example annotation (MODIFY based on your actual marker expression!)
+# You need to look at DotPlot and FeaturePlot results to determine which cluster is which cell type
+cluster_annotations <- c(
+  "0" = "Excitatory Neurons",
+  "1" = "Inhibitory Neurons", 
+  "2" = "Oligodendrocytes",
+  "3" = "Astrocytes",
+  "4" = "Microglia",
+  "5" = "OPCs",
+  "6" = "Endothelial"
+  # Add more clusters as needed based on your data
+)
+
+# Only annotate clusters that exist in your data
+existing_clusters <- as.character(unique(Idents(so)))
+cluster_annotations <- cluster_annotations[names(cluster_annotations) %in% existing_clusters]
+
+# Add cell type annotations to metadata
+so$cell_type <- as.character(Idents(so))
+for(cluster_id in names(cluster_annotations)) {
+  so$cell_type[so$cell_type == cluster_id] <- cluster_annotations[cluster_id]
+}
+
+# View annotation summary
+cat("\nCell type annotations:\n")
+print(table(so$cell_type))
+```
+
+### 6.13.4. Visualize Annotated Cell Types
+```{r}
+# UMAP with cell type annotations
+DimPlot(so, reduction = "umap", group.by = "cell_type", label = TRUE, pt.size = 0.5) +
+  ggtitle("UMAP - Annotated Cell Types (Human Cortex)")
+```
+
+## 6.14. Cell-Type Specific Differential Expression (Optional)
+
+This section identifies genes that are differentially expressed between specific cell types, which can be compared with bulk RNA-seq results.
+
+### 6.14.1. Compare Two Cell Types
+```{r}
+# Example: Compare excitatory vs inhibitory neurons
+# Adjust cell type names based on your annotations
+
+Idents(so) <- "cell_type"
+
+# Check available cell types
+cat("Available cell types for comparison:\n")
+print(unique(Idents(so)))
+```
+
+```{r}
+# Find markers between two cell types (example)
+# Uncomment and modify based on your cell types
+
+# de_neurons <- FindMarkers(so, 
+#                           ident.1 = "Excitatory Neurons", 
+#                           ident.2 = "Inhibitory Neurons",
+#                           min.pct = 0.25)
+# 
+# head(de_neurons, 20)
+```
+
+### 6.14.2. Cell Type Proportions
+```{r}
+# Calculate cell type proportions
+cell_type_counts <- table(so$cell_type)
+cell_type_props <- prop.table(cell_type_counts) * 100
+
+# Create proportion dataframe
+prop_df <- data.frame(
+  CellType = names(cell_type_props),
+  Proportion = as.numeric(cell_type_props)
+)
+
+# Plot cell type proportions
+ggplot(prop_df, aes(x = reorder(CellType, -Proportion), y = Proportion, fill = CellType)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
+  labs(title = "Cell Type Proportions in Human Cortex",
+       x = "Cell Type",
+       y = "Percentage of Cells")
+```
+
+## 6.15. Save Results
+
+```{r}
+# Save the processed Seurat object
+saveRDS(so, file = "human_cortex_scRNA_processed.rds")
+cat("Seurat object saved to 'human_cortex_scRNA_processed.rds'\n")
+```
+
+## 6.16. Summary
+
+This single-cell RNA-seq analysis of human cortex tissue has:
+
+1. **Quality Control**: Filtered cells based on gene counts and mitochondrial content
+2. **Normalization**: Applied log-normalization to account for sequencing depth
+3. **Feature Selection**: Identified 2,000 highly variable genes
+4. **Dimensionality Reduction**: Performed PCA and UMAP for visualization
+5. **Clustering**: Identified distinct cell populations using graph-based clustering
+6. **Cell Type Annotation**: Assigned cell type labels based on known marker genes
+
+The identified cell types in the healthy human cortex can now be compared with bulk RNA-seq findings to understand cell-type-specific contributions to gene expression changes observed in glioblastoma.
