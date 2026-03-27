@@ -1,0 +1,8 @@
+{
+  "alpha": 0.4,
+  "gamma": 0.99,
+  "epsilon": 1.0,
+  "epsilon_decay": 0.995,
+  "episodes": 1000.0,
+  "mean_last_50": 39.37062250159599
+}
