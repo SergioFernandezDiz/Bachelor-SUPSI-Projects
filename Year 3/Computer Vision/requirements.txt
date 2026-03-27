@@ -1,0 +1,23 @@
+numpy
+pandas
+scikit-learn
+scikit-image
+scipy
+tqdm
+joblib
+
+# --- Visualizzazione e notebook ---
+matplotlib
+seaborn
+notebook
+jupyterlab
+ipywidgets
+plotly
+
+# --- Gestione immagini e file ---
+imageio
+pillow
+
+# --- Utility varie ---
+requests
+tqdm
