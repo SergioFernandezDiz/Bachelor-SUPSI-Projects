@@ -1,0 +1,9 @@
+pandas
+geopandas
+matplotlib
+mplcursors
+seaborn
+numpy
+plotly
+pycountry
+openpyxl
