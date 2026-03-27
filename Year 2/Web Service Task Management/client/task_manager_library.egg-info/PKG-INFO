@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: task_manager_library
+Version: 1.0.0
+Summary: Library package for task_manager applications
+Author: Bernacchia and Fernandez
+Author-email: sergio.fernandezdiz@supsi.ch,alessia.bernacchia@supsi.ch
+Requires-Dist: requests
+Requires-Dist: plotly
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
+Dynamic: summary

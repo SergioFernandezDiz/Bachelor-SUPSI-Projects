@@ -1,0 +1,27 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgY291bnQoQ2FudG9uLFllYXIpIHw+XG4gIGZpbHRlcihuPjEpXG5gYGAifQ== -->
+
+```r
+swiss_gdp_tidy |>
+  count(Canton,Year) |>
+  filter(n>1)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  count(Canton,Year) |>
+  filter(n>1)
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MCwibmNvbCI6Mywic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyIwIMOXIDMiXX19LCJyZGYiOiJINHNJQUFBQUFBQUFBMjFRVFErQ01BeXRERENTYUVqOEhYQlFEOTQxL2dDamlSNG5UQ1ZpUjhiOCtQWG93RFhHeFYzYXZ2VzFmVys5M0UyalhRUUFESHpmQXhhWUZJTHRacFhNQVF3QTBBTWZCbTE4bXFaeDF3a1F3K2NOZitNUElVQitGYlZ0WmhZTUZ4eTFSRnY1ZThFVnpVZUhQMUR5a2RLTXZ3dXlrdGUwZ01BbzU1cW5SMlY0cG1vY1NsOVd1cEJvU0Y0ckpYVElQZVVBOFEzYkMvSWtPOS93a2t4bXpqK3I4TlF1N2FDdkZXN09QbWQ0TDBzUHlRMkJwd0lGNlNuNVFaUTBPUmQzbTQ2TUVaMFBhYVVLMUNUVW9IV3FwZVpFaVRKWkV0SkpoK1lOam5XMzhlQUJBQUE9In0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"n\"],\"name\":[3],\"type\":[\"int\"],\"align\":[\"right\"]}],\"data\":[],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[0]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

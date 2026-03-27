@@ -1,0 +1,27 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfcG9wIHw+XG4gIGNvdW50KENhbnRvbixZZWFyKSB8PlxuICBmaWx0ZXIobj4xKVxuYGBgIn0= -->
+
+```r
+swiss_pop |>
+  count(Canton,Year) |>
+  filter(n>1)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_pop |>
+  count(Canton,Year) |>
+  filter(n>1)
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInNwZWNfdGJsX2RmIiwidGJsX2RmIiwidGJsIiwiZGF0YS5mcmFtZSJdLCJucm93IjowLCJuY29sIjozLCJzdW1tYXJ5Ijp7IkEgdGliYmxlIjpbIjAgw5cgMyJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUEyMVEyd3JDTUF5TjZ6WnhvQWgreC9hZ0NMNHJmb0FvNkdQZDZoek9kSFQxOHZWcXR6V0l4YjRrT2MxSmNzNW10WjlGK3dnQUdQaStCeXd3S1FTNzdUcGVBQmdBb0FjK0RKcjRORTJUdGhOZ0ROMGIyVGpzd2c4aFFINFZ0VzFtRmd5WEhMVkVXL2tId1JYTlI0Yy9VUEtSMEl5L0M5S1MxN1NBd0Nqam1pY25aWGltZWptVXZxeDBJZEdRdkVaSzZKQjd5Z0hHTjJ3dXlPTDBmTU5MUEowNy82ekN2Rm5hUWw4cjNKeDFaM2h2U3cvSkRZRjVnWUwwbFB3b1NwcWNpYnROUjhhSTFvZWtVZ1ZxRW1yUU90RlNjNkpFcVN3SmFhWEQ2d01yMmp4MjRBRUFBQT09In0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"n\"],\"name\":[3],\"type\":[\"int\"],\"align\":[\"right\"]}],\"data\":[],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[0]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

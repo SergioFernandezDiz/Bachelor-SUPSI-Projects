@@ -1,0 +1,29 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiB8IENhbnRvbj09XCJWYXVkXCIpIHw+XG4gIHNlbGVjdChcIkNhbnRvblwiLCBcIlllYXJcIiwgXCJwZXJjZW50X2ZpbmFuY2lhbFwiKSB8PlxuICBtdXRhdGUoQ2FudG9uPWZhY3RvcihDYW50b24sIGMoXCJUaWNpbm9cIixcIlZhdWRcIiksb3JkZXJlZCA9IFQpKSBcbmBgYCJ9 -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) 
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) 
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MjgsIm5jb2wiOjMsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMjggw5cgMyJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWVdKZ1pnVXlHVmhEUTl4MExSZ1lnQUlNREl3TUxBeWNJTG9DcUVnWXJKS0JtUmRJeTRBbHljTk01R0VVQjdIbHBKYWw1aFFEV1FKZ1dhaG9TR1p5Wmw0K2xNY1NsbGlhZ3FhUE5Ua25zUmhkRzN0K1VVcHFVV29LekpTMHhPU1MvQ0lnNng4UVEzM0xmZ09JYndMeExTQytEY1IzZ1BndUVOOEQ0dnRBL0FDSUh3THhJeUIrRE1SUGdQZ3ArZm9ZK0VEMk9pZ2RGQzllVzlYbG9NUzl5SGpsN2pRSGhjY3JaZUsxNWpqSW44dFpQTjJseVVIZW9Xci9CSGNyQi9rZGNXdFRaWHdjWkc4MzlubzZ1em5JSlh3MFh2WjZpb09zMmVhRkovc1NIQ1R2aFV5WnMwSE9RWmJCY3NjSFVRWUhPUkhoa3VyWkNRN3ljN0xaNDUxMk9jaXYrdkI0ZmppYmd4Si9pV3pkeHpJSGhiOCtQaWZMSnpvb0NMYXRjanB6MGtIK3VkSVQ1bk9YSFdSenJtamRlVnpnSU05K0xWaGk3eElIMlFmeXg3VGIzempJaE5lc2V2aTYwRUZLdHN6ckw2dXVnOHpSYWZ0VERSc2RaSFdPUDA1ck9PMGc4OFRwMCt5Z1hRNXk5d0xtM04yODNFSG1oMlR2ek45KzZMR1RsNWliQ29zZFpsaDBPQ2ZtbGVUbndTSTFNald4Q01vV0xFZ3RTazdOSzRsUHk4eEx6RXZPVE14Qk00K3pLTDljRDJZbUtDS1pHb0RFLy8vL24wQVVNditIMmdYVHdKV1NXSktvbDFZRTFBS0pmaFRqMlBNTFNqTHo4NENHTVlIeUFodWFac1lpTkFIKzBqeVE1U202eVJtbGVkbTY1bWpTekFWNTZTQTdvZG1DQWVwR1JtajJnckdaSWE1Z2dibVZEUll1cVhucG1YbXBzS0RMU1V4S3pZR1puSkphQm1YeUFZTUFIQUo2QlVXWmVTVXdmd0pGaS9WSzhrc1NZVnE0a3ZOellDS1FoUDhQQU84dTV4WWdCQUFBIn0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"ord\"],\"align\":[\"right\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"percent_financial\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Ticino\",\"2\":\"2008\",\"3\":\"9.377132\"},{\"1\":\"Ticino\",\"2\":\"2009\",\"3\":\"9.022722\"},{\"1\":\"Ticino\",\"2\":\"2010\",\"3\":\"8.444650\"},{\"1\":\"Ticino\",\"2\":\"2011\",\"3\":\"7.951586\"},{\"1\":\"Ticino\",\"2\":\"2012\",\"3\":\"7.812968\"},{\"1\":\"Ticino\",\"2\":\"2013\",\"3\":\"7.930049\"},{\"1\":\"Ticino\",\"2\":\"2014\",\"3\":\"7.464361\"},{\"1\":\"Ticino\",\"2\":\"2015\",\"3\":\"7.594670\"},{\"1\":\"Ticino\",\"2\":\"2016\",\"3\":\"7.303420\"},{\"1\":\"Ticino\",\"2\":\"2017\",\"3\":\"6.467120\"},{\"1\":\"Ticino\",\"2\":\"2018\",\"3\":\"7.250220\"},{\"1\":\"Ticino\",\"2\":\"2019\",\"3\":\"7.519605\"},{\"1\":\"Ticino\",\"2\":\"2020\",\"3\":\"7.902752\"},{\"1\":\"Ticino\",\"2\":\"2021\",\"3\":\"7.916935\"},{\"1\":\"Vaud\",\"2\":\"2008\",\"3\":\"9.030183\"},{\"1\":\"Vaud\",\"2\":\"2009\",\"3\":\"8.494723\"},{\"1\":\"Vaud\",\"2\":\"2010\",\"3\":\"8.034231\"},{\"1\":\"Vaud\",\"2\":\"2011\",\"3\":\"7.975719\"},{\"1\":\"Vaud\",\"2\":\"2012\",\"3\":\"7.356278\"},{\"1\":\"Vaud\",\"2\":\"2013\",\"3\":\"7.757654\"},{\"1\":\"Vaud\",\"2\":\"2014\",\"3\":\"7.468871\"},{\"1\":\"Vaud\",\"2\":\"2015\",\"3\":\"7.085437\"},{\"1\":\"Vaud\",\"2\":\"2016\",\"3\":\"6.528772\"},{\"1\":\"Vaud\",\"2\":\"2017\",\"3\":\"7.192958\"},{\"1\":\"Vaud\",\"2\":\"2018\",\"3\":\"7.293731\"},{\"1\":\"Vaud\",\"2\":\"2019\",\"3\":\"7.222912\"},{\"1\":\"Vaud\",\"2\":\"2020\",\"3\":\"7.717104\"},{\"1\":\"Vaud\",\"2\":\"2021\",\"3\":\"7.242285\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[28]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

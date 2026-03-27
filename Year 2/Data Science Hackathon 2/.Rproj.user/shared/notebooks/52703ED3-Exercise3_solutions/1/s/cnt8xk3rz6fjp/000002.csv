@@ -1,0 +1,39 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2FudG9uX25hbWVzX2RpZmYgPC0gd2hpY2goISh1bmlxdWUoc3dpc3NfZ2RwX3RpZHkkQ2FudG9uKSAlaW4lIHVuaXF1ZShzd2lzc19wb3AkQ2FudG9uKVstMV0pKVxudW5pcXVlKHN3aXNzX2dkcF90aWR5JENhbnRvbilbY2FudG9uX25hbWVzX2RpZmZdXG5gYGAifQ== -->
+
+```r
+canton_names_diff <- which(!(unique(swiss_gdp_tidy$Canton) %in% unique(swiss_pop$Canton)[-1]))
+unique(swiss_gdp_tidy$Canton)[canton_names_diff]
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+canton_names_diff <- which(!(unique(swiss_gdp_tidy$Canton) %in% unique(swiss_pop$Canton)[-1]))
+unique(swiss_gdp_tidy$Canton)[canton_names_diff]
+```"
+"1","[1] \"Berne\"
+"
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfcG9wIHw+IGZpbHRlcihDYW50b249PVwiQmVybmVcIilcbmBgYCJ9 -->
+
+```r
+swiss_pop |> filter(Canton==\"Berne\")
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_pop |> filter(Canton==\"Berne\")
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInNwZWNfdGJsX2RmIiwidGJsX2RmIiwidGJsIiwiZGF0YS5mcmFtZSJdLCJucm93IjowLCJuY29sIjo2LCJzdW1tYXJ5Ijp7IkEgdGliYmxlIjpbIjAgw5cgNiJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUE0MVFYVXZETUJTOTlrc2IyQmo0TTZSbFZoMzZLSXJQSWdyenFjUTIxbUpNU3BxcXYzNTYweVpqaGowWUNMbm41SDZjZXg1dTEyZGtUUUFnaENnS0lJd3hoUGpwOFM2N0JFQUM0QUFpU00zN2pVbkhHQ1I0RnpDZCtmL2VQNDFpUVQ5WWI1c2tsa3h1cU5CU1dFVHVaVGR3cXRzdGMzVGRzSEpabmw1Wm5CcGNMTXZWK1c3QzZxSThzVGg2WmxSNWsxTWx2M0kzZmJaUFdzVnA3NlE1a3RSVTAveFZZUjJpalZkeUtEc2pFNHVDWFhPMnJpbVBXQXpDS0tpejZtMFE3MWxSZVA5aEp4b3pkS1NtTTlzVEo1T000TWYza1ltbUZjenR3K2tMNDY1enpUNXRPRWNqUmgveVRyVkN1MFdSN1hNdE5YVWxwSkxjTWVQcXNQa0Zrd3FNSERJQ0FBQT0ifQ== -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Population\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_0_19\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_20_64\"],\"name\":[4],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_65_+\"],\"name\":[5],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Year\"],\"name\":[6],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[6]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[0]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

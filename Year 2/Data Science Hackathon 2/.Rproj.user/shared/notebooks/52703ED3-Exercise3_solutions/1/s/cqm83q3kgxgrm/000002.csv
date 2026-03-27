@@ -1,0 +1,40 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBMb2FkIHRoZSBkYXRhc2V0c1xuc3dpc3NfZ2RwIDwtIHJlYWRfY3N2KFwic3dpc3NfZ2RwLnR4dFwiKVxuYGBgIn0= -->
+
+```r
+# Load the datasets
+swiss_gdp <- read_csv(\"swiss_gdp.txt\")
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Load the datasets
+swiss_gdp <- read_csv(\"swiss_gdp.txt\")
+```"
+"1","Rows: 234 Columns: 17── Column specification ────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: \",\"
+chr  (3): Canton_ID, Canton, Industries
+dbl (14): 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfcG9wIDwtIHJlYWRfY3N2KFwic3dpc3NfcG9wLnR4dFwiKVxuYGBgIn0= -->
+
+```r
+swiss_pop <- read_csv(\"swiss_pop.txt\")
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_pop <- read_csv(\"swiss_pop.txt\")
+```"
+"1","Rows: 378 Columns: 6── Column specification ────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: \",\"
+chr (1): Canton
+dbl (5): Population, Age_0_19, Age_20_64, Age_65_+, Year
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"

@@ -1,0 +1,7 @@
+"0","simulatedGauss <- tibble(tempMean=rnorm(n = 1000,"
+"0","                        mean=meanTemp_SAMmarch,"
+"0","                        sd = sdTemp_SAMmarch))"
+"0",""
+"0","# Quick plotting solution"
+"0","meteoSAMmarch |> "
+"0","  ggplot()+geom_density(aes(x=tempMean),color='blue',trim=TRUE)+geom_density(data=simulatedGauss, aes(x=tempMean))"

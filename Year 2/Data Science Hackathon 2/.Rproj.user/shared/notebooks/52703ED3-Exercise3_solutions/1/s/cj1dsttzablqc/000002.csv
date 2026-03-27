@@ -1,0 +1,33 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD4gXG4gIHNlbGVjdChDYW50b24sIFllYXIscGVyY2VudF9maW5hbmNpYWwpIHw+XG4gIGZpbHRlcihDYW50b249PVwiVGljaW5vXCIgfCBDYW50b249PVwiVmF1ZFwiKSB8PlxuICBwaXZvdF93aWRlcihuYW1lc19mcm9tID0gQ2FudG9uLHZhbHVlc19mcm9tID0gcGVyY2VudF9maW5hbmNpYWwpIHw+XG4gIG11dGF0ZShmaW5fcGVyY19kaWZmPVZhdWQtVGljaW5vKSB8PlxuICBmaWx0ZXIoZmluX3BlcmNfZGlmZj4wKSBcbmBgYCJ9 -->
+
+```r
+swiss_gdp_tidy |> 
+  select(Canton, Year,percent_financial) |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  pivot_wider(names_from = Canton,values_from = percent_financial) |>
+  mutate(fin_perc_diff=Vaud-Ticino) |>
+  filter(fin_perc_diff>0) 
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |> 
+  select(Canton, Year,percent_financial) |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  pivot_wider(names_from = Canton,values_from = percent_financial) |>
+  mutate(fin_perc_diff=Vaud-Ticino) |>
+  filter(fin_perc_diff>0) 
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6NCwic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyI0IMOXIDQiXX19LCJyZGYiOiJINHNJQUFBQUFBQUFBd3R5aVREbWl1QmlZR0JnWm1CaFlXSmdaZ1V5R1ZoRFE5eDBMUmdZZ0FJTURJd01MQXljSUxvQ3FFZ1l5R0FCWWw0SXpYNGJpTzhCOFVNZ2ZnUVU0d09KTzhpZnkxazgzYVhKUWZaMlk2K25zNXVENUwyUUtYTTJ5RG5JTWxqdStDREtnRkQzWE9rSjg3bkxEcklQNUk5cHQ3OXhrRGs2YlgrcVlhT0RyTTd4eDJrTnAySHE3R2RzYzhqcENtU3dMNnA0M0NrMGc4SCt1WlZnbUF1M2hQMHlkMUZyMDZjTmFBNWx6VXZNVFMwR01nVEFqb1FJc2tTbUpoWkIyV3dobWNtWmVma3dtYkRFMGhRb216Y3RNeSsrSUxVb09UNGxNeTBOelZ6T292eHlQWmpab0FCZ0F0ck04UC8vL3ovb0Rrak9TU3lHT1FBbXlKV1NXSktvbDFZRTFBL2svVVBUd3A1ZlVKS1pud2ZVeEFRS1lqWTB6WXhGYUFJQ3BYa2dsNlRvSm1lVTVtWHJHcHFneVRNWDVLV0RMQVVMUVFBdmxNMkN5Z1k1ZytrL1ZEc2JMSVJTODlJejgxSmgvc2xKVEVyTmdabWNrbG9HWmZJQkF3UWNIbm9GUlpsNUpUQ1BBa1dMOVVyeVN4SmhXcmlTODNOZ0ltQ3ZNL3dEQUxnd0hCdDRBZ0FBIn0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"Ticino\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Vaud\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"fin_perc_diff\"],\"name\":[4],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2011\",\"2\":\"7.951586\",\"3\":\"7.975719\",\"4\":\"0.02413273\"},{\"1\":\"2014\",\"2\":\"7.464361\",\"3\":\"7.468871\",\"4\":\"0.00450982\"},{\"1\":\"2017\",\"2\":\"6.467120\",\"3\":\"7.192958\",\"4\":\"0.72583835\"},{\"1\":\"2018\",\"2\":\"7.250220\",\"3\":\"7.293731\",\"4\":\"0.04351107\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[4]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[4]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

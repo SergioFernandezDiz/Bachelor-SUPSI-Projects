@@ -1,0 +1,33 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiB8IENhbnRvbj09XCJWYXVkXCIpIHw+XG4gIHNlbGVjdChcIkNhbnRvblwiLCBcIlllYXJcIiwgXCJwZXJjZW50X2ZpbmFuY2lhbFwiKSB8PlxuICBtdXRhdGUoQ2FudG9uPWZhY3RvcihDYW50b24sIGMoXCJUaWNpbm9cIixcIlZhdWRcIiksb3JkZXJlZCA9IFQpKSB8PlxuICBhcnJhbmdlKFllYXIpIHw+XG4gIGdyb3VwX2J5KFllYXIpIFxuYGBgIn0= -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) |>
+  arrange(Year) |>
+  group_by(Year) 
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) |>
+  arrange(Year) |>
+  group_by(Year) 
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImdyb3VwZWRfZGYiLCJ0YmxfZGYiLCJ0YmwiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjI4LCJuY29sIjozLCJzdW1tYXJ5Ijp7IkEgdGliYmxlIjpbIjI4IMOXIDMiXSwiR3JvdXBzIjpbIlllYXIgWzE0XSJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWVdKZ1pnVXlHVmhEUTl4MExSZ1lnQUlNREl3TUxBeWNJTG9DcUVnWXJKS0JtUmRJeTRBbEdSaVk2RWVqT0lndEo3VXNOYWNZeUJJQXkwSkZRektUTS9QeW9UeVdzTVRTRkRSOXJNazVpY1hvMnRqemkxSlNpMUpUWUtha0pTYVg1QmNCV2YrQUdPcGI5aHRRZkJPS2IwSHhiU2krQThWM29mZ2VGTitINGdkUS9CQ0tIMEh4WXloK0FzVlBJWmlCRDJTdmc5SkI4ZUsxVlYwT1N2d2xzblVmeXh5VXVCY1pyOXlkNXFEdzE4Zm5aUGxFQjRYSEsyWGl0ZVk0S0FpMnJYSTZjOUpCL2x6TzR1a3VUUTd5ejVXZU1KKzc3Q0R2VUxWL2dydVZnMnpPRmEwN2p3c2M1SGZFclUyVjhYR1FaNzhXTExGM2lZUHM3Y1plVDJjM0I5a0g4c2UwMjk4NHlDVjhORjcyZW9xRFRIak5xb2V2Q3gxa3pUWXZQTm1YNENBbFcrYjFsMVhYUWZKZXlKUTVHK1FjWkk1TzI1OXEyT2dneTJDNTQ0TW9nNE9zenZISGFRMm5IZVJFaEV1cVp5YzR5RHh4K2pRN2FKZUQvSnhzOW5pblhRNXk5d0xtM04yODNFRisxWWZIODhQWkhHUitTUGJPL08wSGlSM20vOUFJZ2NVU1YwcGlTYUplV2xGaWJpcGEvSEVXNVpmcjVRSEZpNkZSdzlRQUpQNy8vLzhFUGFKaGlnUWc2UnNTczg2SmVTWDVlYkQwRVptYVdBUmxDeGFrRmlXbjVwWEVwMlhtSmVZbFp5Ym1RS0lmeFV6Mi9JS1N6UHc4b0tsTW9MekFodVpxeGlJMEFmN1NQSkFyVW5TVE0wcnpza0daQ2tXYXVTQXZIZVJaYUJKbmdQcUlFWnE5WUd4bWlDdFlZWUhFQnZOTWFsNTZabDRxekw4NWlVbXBPVENUVTFMTG9FdytZSUNCZzBLdm9DZ3pyd1FXd0VEUllyMlMvSkpFbUJhdTVQd2NtQWdrNGY4REFFcStZbGdnQkFBQSJ9 -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"ord\"],\"align\":[\"right\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"percent_financial\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Ticino\",\"2\":\"2008\",\"3\":\"9.377132\"},{\"1\":\"Vaud\",\"2\":\"2008\",\"3\":\"9.030183\"},{\"1\":\"Ticino\",\"2\":\"2009\",\"3\":\"9.022722\"},{\"1\":\"Vaud\",\"2\":\"2009\",\"3\":\"8.494723\"},{\"1\":\"Ticino\",\"2\":\"2010\",\"3\":\"8.444650\"},{\"1\":\"Vaud\",\"2\":\"2010\",\"3\":\"8.034231\"},{\"1\":\"Ticino\",\"2\":\"2011\",\"3\":\"7.951586\"},{\"1\":\"Vaud\",\"2\":\"2011\",\"3\":\"7.975719\"},{\"1\":\"Ticino\",\"2\":\"2012\",\"3\":\"7.812968\"},{\"1\":\"Vaud\",\"2\":\"2012\",\"3\":\"7.356278\"},{\"1\":\"Ticino\",\"2\":\"2013\",\"3\":\"7.930049\"},{\"1\":\"Vaud\",\"2\":\"2013\",\"3\":\"7.757654\"},{\"1\":\"Ticino\",\"2\":\"2014\",\"3\":\"7.464361\"},{\"1\":\"Vaud\",\"2\":\"2014\",\"3\":\"7.468871\"},{\"1\":\"Ticino\",\"2\":\"2015\",\"3\":\"7.594670\"},{\"1\":\"Vaud\",\"2\":\"2015\",\"3\":\"7.085437\"},{\"1\":\"Ticino\",\"2\":\"2016\",\"3\":\"7.303420\"},{\"1\":\"Vaud\",\"2\":\"2016\",\"3\":\"6.528772\"},{\"1\":\"Ticino\",\"2\":\"2017\",\"3\":\"6.467120\"},{\"1\":\"Vaud\",\"2\":\"2017\",\"3\":\"7.192958\"},{\"1\":\"Ticino\",\"2\":\"2018\",\"3\":\"7.250220\"},{\"1\":\"Vaud\",\"2\":\"2018\",\"3\":\"7.293731\"},{\"1\":\"Ticino\",\"2\":\"2019\",\"3\":\"7.519605\"},{\"1\":\"Vaud\",\"2\":\"2019\",\"3\":\"7.222912\"},{\"1\":\"Ticino\",\"2\":\"2020\",\"3\":\"7.902752\"},{\"1\":\"Vaud\",\"2\":\"2020\",\"3\":\"7.717104\"},{\"1\":\"Ticino\",\"2\":\"2021\",\"3\":\"7.916935\"},{\"1\":\"Vaud\",\"2\":\"2021\",\"3\":\"7.242285\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[28]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

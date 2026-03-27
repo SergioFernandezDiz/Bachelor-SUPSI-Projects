@@ -1,0 +1,6 @@
+"0","# Better plotting solution"
+"0","meteoSAMmarch |> "
+"0","  select(tempMean) |>"
+"0","  pivot_longer(names_to = ""type"",cols=tempMean) |>"
+"0","  add_row(type=""Simulation"", value = simulatedGauss$tempMean) |>"
+"0","  ggplot()+geom_density(aes(x=value,color=type))"

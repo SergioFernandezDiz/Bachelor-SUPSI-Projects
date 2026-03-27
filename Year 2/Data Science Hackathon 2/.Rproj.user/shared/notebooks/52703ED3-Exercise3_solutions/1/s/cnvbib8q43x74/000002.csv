@@ -1,0 +1,27 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiB8IENhbnRvbj09XCJWYXVkXCIpIHw+XG4gIHNlbGVjdChcIkNhbnRvblwiLCBcIlllYXJcIiwgXCJwZXJjZW50X2ZpbmFuY2lhbFwiKVxuYGBgIn0= -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\")
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  select(\"Canton\", \"Year\", \"percent_financial\")
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MjgsIm5jb2wiOjMsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMjggw5cgMyJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWVdKZ1pnVXlHVmhEUTl4MExSZ1lnQUlNREl3TUxBeWNJTG9DcUVnWXJKS0JRUUNJWmFBU2JDR1p5Wmw1K1VPYXh4S1dXSm95cU5rTURMemdNR2RndndIRU40SDRGaERmQnVJN1FId1hpTzhCOFgwZ2ZnREVENEg0RVJBL0J1SW5RUHlVZkgwTWZDQjdIWlFPaWhldnJlcHlVT0plWkx4eWQ1cUR3dU9WTXZGYWN4emt6K1VzbnU3UzVDRHZVTFYvZ3J1VmcveU91TFdwTWo0T3NyY2JlejJkM1J6a0VqNGFMM3M5eFVIV2JQUENrMzBKRHBMM1FxYk0yU0RuSU10Z3VlT0RLSU9Ebklod1NmWHNCQWY1T2RuczhVNjdIT1JYZlhnOFA1ek5RWW0vUkxidVk1bUR3bDhmbjVQbEV4MFVCTnRXT1owNTZTRC9YT2tKODduTERySTVWN1R1UEM1d2tHZS9GaXl4ZDRtRDdBUDVZOXJ0Ynh4a3dtdFdQWHhkNkNBbFcrYjFsMVhYUWVib3RQMnBobzBPc2pySEg2YzFuSGFRZWVMMGFYYlFMZ2U1ZXdGejdtNWU3aUR6UTdKMzVtOC90TVRPbXBlWW0xb01UZWpNc0NUam5KaFhrcDhIaTViSTFNUWlLRnV3SUxVb09UV3ZKRDR0TXk4eEx6a3pNUWZOUE02aS9ISTltSm1naUdScUFCTC8vLzkvZ201eGNrNWlNY3hpbUNCWFNtSkpvbDVhRVZBL2tQY1BUUXQ3ZmtGSlpuNGVVQk1US0h1eW9XbG1MRUlUNEMvTkE3a2tSVGM1b3pRdlc5Y01UWnE1SUM4ZFpDZFlDQUo0b1d3WkpEWXp4QlZNLzZIYTJXQ0JsSnFYbnBtWEN2Tk9UbUpTYWc3TTVKVFVNaWlURHhnZTRPRFFLeWpLekN1QitSTW9XcXhYa2wrU0NOUENsWnlmQXhNQis1emhId0Jydk9kZnN3UUFBQT09In0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"percent_financial\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Ticino\",\"2\":\"2008\",\"3\":\"9.377132\"},{\"1\":\"Ticino\",\"2\":\"2009\",\"3\":\"9.022722\"},{\"1\":\"Ticino\",\"2\":\"2010\",\"3\":\"8.444650\"},{\"1\":\"Ticino\",\"2\":\"2011\",\"3\":\"7.951586\"},{\"1\":\"Ticino\",\"2\":\"2012\",\"3\":\"7.812968\"},{\"1\":\"Ticino\",\"2\":\"2013\",\"3\":\"7.930049\"},{\"1\":\"Ticino\",\"2\":\"2014\",\"3\":\"7.464361\"},{\"1\":\"Ticino\",\"2\":\"2015\",\"3\":\"7.594670\"},{\"1\":\"Ticino\",\"2\":\"2016\",\"3\":\"7.303420\"},{\"1\":\"Ticino\",\"2\":\"2017\",\"3\":\"6.467120\"},{\"1\":\"Ticino\",\"2\":\"2018\",\"3\":\"7.250220\"},{\"1\":\"Ticino\",\"2\":\"2019\",\"3\":\"7.519605\"},{\"1\":\"Ticino\",\"2\":\"2020\",\"3\":\"7.902752\"},{\"1\":\"Ticino\",\"2\":\"2021\",\"3\":\"7.916935\"},{\"1\":\"Vaud\",\"2\":\"2008\",\"3\":\"9.030183\"},{\"1\":\"Vaud\",\"2\":\"2009\",\"3\":\"8.494723\"},{\"1\":\"Vaud\",\"2\":\"2010\",\"3\":\"8.034231\"},{\"1\":\"Vaud\",\"2\":\"2011\",\"3\":\"7.975719\"},{\"1\":\"Vaud\",\"2\":\"2012\",\"3\":\"7.356278\"},{\"1\":\"Vaud\",\"2\":\"2013\",\"3\":\"7.757654\"},{\"1\":\"Vaud\",\"2\":\"2014\",\"3\":\"7.468871\"},{\"1\":\"Vaud\",\"2\":\"2015\",\"3\":\"7.085437\"},{\"1\":\"Vaud\",\"2\":\"2016\",\"3\":\"6.528772\"},{\"1\":\"Vaud\",\"2\":\"2017\",\"3\":\"7.192958\"},{\"1\":\"Vaud\",\"2\":\"2018\",\"3\":\"7.293731\"},{\"1\":\"Vaud\",\"2\":\"2019\",\"3\":\"7.222912\"},{\"1\":\"Vaud\",\"2\":\"2020\",\"3\":\"7.717104\"},{\"1\":\"Vaud\",\"2\":\"2021\",\"3\":\"7.242285\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[28]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

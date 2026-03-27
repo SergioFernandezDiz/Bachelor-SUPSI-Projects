@@ -1,0 +1,31 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiB8IENhbnRvbj09XCJWYXVkXCIpIHw+XG4gIGZpbHRlcihZZWFyICVpbiUgYygyMDE2LDIwMTcpKSB8PlxuICBhcnJhbmdlKFllYXIpIHw+XG4gIHNlbGVjdChZZWFyLENhbnRvbixwZXJjZW50X2ZpbmFuY2lhbClcbmBgYCJ9 -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  filter(Year %in% c(2016,2017)) |>
+  arrange(Year) |>
+  select(Year,Canton,percent_financial)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |>
+  filter(Year %in% c(2016,2017)) |>
+  arrange(Year) |>
+  select(Year,Canton,percent_financial)
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6Mywic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyI0IMOXIDMiXX19LCJyZGYiOiJINHNJQUFBQUFBQUFBMzFRelVyRFFCQ2U1cWVsZ1phS0o4WDZCZ2tVUVR3R0ZBOGVKVW85NlpwczYyS2NEZW1tZXRRWDZFazhlZkVOQkIvQWt3ZGZRdlE5dEhHVDdJTHN3Y0Jrdi9sMnYvbG01bkJ2dk9XTlBRQ3d3WEVzc0YwSndUMks5djBkQUVrQXRNQ0JiblhleUVlcjlVdUFuZ3dIb1BPcDRxc0pHTlI4STJoSExHYklWZVlja3lMNTV3YWdYK0Z3dVAzeTlMNDRDOWVIODRNZjF3L1hQcUw3eCtmTmNPUHQ0WldPN295bVhDUlhkS2FNYlYzd2hKSmNXKzBTRkJ4VnRwTFJQS1lvVGljTUNjYU1wRWE5YnM2dkExMnpHdEs2bGIreUxMOU40emdsTTIyc1NTOGhnZ1NUWE9wbHRqUWtIWjRKeGxHS3JHcU5iVVBjeWcxaVVHRFZTZUxIRndWZStxT1JjVzluT0sxTWE2cjVlZ283ZjdEZHRHR1ZTdDdXbTZFNFpVajFQQ2s1cDZtdW5OQzVnbjI1a0hvZlFaWXpGSHBReWM0Q3dRWFJFaS9tcVdicTBXSDVDK0RyNFdkY0FnQUEifQ== -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"Canton\"],\"name\":[2],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"percent_financial\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2016\",\"2\":\"Ticino\",\"3\":\"7.303420\"},{\"1\":\"2016\",\"2\":\"Vaud\",\"3\":\"6.528772\"},{\"1\":\"2017\",\"2\":\"Ticino\",\"3\":\"6.467120\"},{\"1\":\"2017\",\"2\":\"Vaud\",\"3\":\"7.192958\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[4]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

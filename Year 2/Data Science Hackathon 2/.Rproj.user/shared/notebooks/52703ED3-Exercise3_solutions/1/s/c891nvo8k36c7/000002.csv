@@ -1,0 +1,27 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZ3JvdXBfYnkoWWVhcikgfD5cbiAgc3VtbWFyaXplKHRvdGFsX3B1YmxpYyA9IHN1bShgUHVibGljIGFkbWluaXN0cmF0aW9uYCkpXG5gYGAifQ== -->
+
+```r
+swiss_gdp_tidy |>
+  group_by(Year) |>
+  summarize(total_public = sum(`Public administration`))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  group_by(Year) |>
+  summarize(total_public = sum(`Public administration`))
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MTQsIm5jb2wiOjIsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMTQgw5cgMiJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWVdKZ1pnVXlHVmhEUTl4MExSZ1lnQUlNREl3TUxBeWNJTG9DcUVnWXlBQUo4Z0l4SHdNRCt3MGd2Z25FdDRENE5oRGZBZUs3UUh3UGlPOEQ4UU1nZmdqRWo0RDRNUkEvQWVLbkVMME1mQTV2Uk9ZL3Y1cDIwZUZ0WngvSHV0OWFEdStjT2tNNUNnUWMzc3UrbERkVDAzSjQzNzVINnZOQ0g0Y1A4dTE4OTBLMk9ud283V1RzSzYxMCtEQm53WnovcnprY1BseVFhSjhYK2NuaHczODM3MlBMUHpoODFPRmF0OGVoMStGam4vMjExZmNjSEQ0eEd5L2IzNTdsOEtuRkxOeHV0VG1haDFqekVuTlRpNEVNQWJDbklJSXNrYW1KUlZBMlQwbCtTV0pPZkVGcFVrNW1NcHBtenFMOGNqMllBYURRWUdvQUV2Ly8vLytFYmt0eVRtSXh6QmFZSUZkS1lrbWlYbG9SVUQrUTl3OU5DM3QrUVVsbWZoNVFFeE1vdk5uUU5ETVdvUWtJbE9hQlhKS2ltNXhSbXBldGEyaUtKczlja0pjT3NoUXNCQUc4VURZZkVwc0o0Z3ltLzFEdGJGRHRiS2w1NlpsNXFURC81Q1FtcGViQVRFNUpMWU15K1lBQkFnNFB2WUtpekx3U21FZUJvc1Y2NEhDRWlTVG41OEJFd0Y1bitBY0FjMDF6NFlVQ0FBQT0ifQ== -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"total_public\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2008\",\"2\":\"57509.00\"},{\"1\":\"2009\",\"2\":\"60492.44\"},{\"1\":\"2010\",\"2\":\"61972.29\"},{\"1\":\"2011\",\"2\":\"63727.29\"},{\"1\":\"2012\",\"2\":\"64573.88\"},{\"1\":\"2013\",\"2\":\"66040.44\"},{\"1\":\"2014\",\"2\":\"67416.56\"},{\"1\":\"2015\",\"2\":\"68042.04\"},{\"1\":\"2016\",\"2\":\"68865.53\"},{\"1\":\"2017\",\"2\":\"69620.39\"},{\"1\":\"2018\",\"2\":\"70336.67\"},{\"1\":\"2019\",\"2\":\"71907.99\"},{\"1\":\"2020\",\"2\":\"73779.23\"},{\"1\":\"2021\",\"2\":\"75843.40\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[2]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[14]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

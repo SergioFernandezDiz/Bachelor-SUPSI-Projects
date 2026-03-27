@@ -1,0 +1,18 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyB0aWR5IHN3aXNzX2dkcFxuc3dpc3NfZ2RwX3RpZHk8LXN3aXNzX2dkcCB8PlxuICBwaXZvdF9sb25nZXIoY29sbmFtZXMoc3dpc3NfZ2RwKVs0OjE3XSxuYW1lc190byA9ICdZZWFyJyx2YWx1ZXNfdG8gPSAnY291bnQnLG5hbWVzX3RyYW5zZm9ybSA9IGxpc3QoWWVhcj1hcy5pbnRlZ2VyKSkgfD5cbiAgcGl2b3Rfd2lkZXIobmFtZXNfZnJvbSA9ICdJbmR1c3RyaWVzJywgdmFsdWVzX2Zyb20gPSAnY291bnQnKVxuYGBgIn0= -->
+
+```r
+# tidy swiss_gdp
+swiss_gdp_tidy<-swiss_gdp |>
+  pivot_longer(colnames(swiss_gdp)[4:17],names_to = 'Year',values_to = 'count',names_transform = list(Year=as.integer)) |>
+  pivot_wider(names_from = 'Industries', values_from = 'count')
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# tidy swiss_gdp
+swiss_gdp_tidy<-swiss_gdp |>
+  pivot_longer(colnames(swiss_gdp)[4:17],names_to = 'Year',values_to = 'count',names_transform = list(Year=as.integer)) |>
+  pivot_wider(names_from = 'Industries', values_from = 'count')
+```"

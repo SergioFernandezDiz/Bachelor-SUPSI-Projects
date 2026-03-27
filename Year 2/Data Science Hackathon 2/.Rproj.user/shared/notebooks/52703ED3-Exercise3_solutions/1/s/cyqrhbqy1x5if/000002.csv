@@ -1,0 +1,41 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiB8IENhbnRvbj09XCJWYXVkXCIpIHw+IFxuICBzZWxlY3QoXCJDYW50b25cIiwgXCJZZWFyXCIsIFwicGVyY2VudF9maW5hbmNpYWxcIikgfD5cbiAgbXV0YXRlKENhbnRvbj1mYWN0b3IoQ2FudG9uLCBjKFwiVGljaW5vXCIsXCJWYXVkXCIpLG9yZGVyZWQgPSBUKSkgfD4gXG4gIGFycmFuZ2UoWWVhcikgfD4gXG4gIGdyb3VwX2J5KFllYXIpIHw+ICAgXG4gIG11dGF0ZShkaWZmX3BlcmNfZmluID0gcGVyY2VudF9maW5hbmNpYWwtbGFnKHBlcmNlbnRfZmluYW5jaWFsLDEpKSB8PlxuICBmaWx0ZXIoIWlzLm5hKGRpZmZfcGVyY19maW4pKSB8PlxuICBzZWxlY3QoWWVhcixkaWZmX3BlcmNfZmluKSB8PlxuICBmaWx0ZXIoZGlmZl9wZXJjX2Zpbj4wKVxuYGBgIn0= -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |> 
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) |> 
+  arrange(Year) |> 
+  group_by(Year) |>   
+  mutate(diff_perc_fin = percent_financial-lag(percent_financial,1)) |>
+  filter(!is.na(diff_perc_fin)) |>
+  select(Year,diff_perc_fin) |>
+  filter(diff_perc_fin>0)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |> 
+  select(\"Canton\", \"Year\", \"percent_financial\") |>
+  mutate(Canton=factor(Canton, c(\"Ticino\",\"Vaud\"),ordered = T)) |> 
+  arrange(Year) |> 
+  group_by(Year) |>   
+  mutate(diff_perc_fin = percent_financial-lag(percent_financial,1)) |>
+  filter(!is.na(diff_perc_fin)) |>
+  select(Year,diff_perc_fin) |>
+  filter(diff_perc_fin>0)
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImdyb3VwZWRfZGYiLCJ0YmxfZGYiLCJ0YmwiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjQsIm5jb2wiOjIsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiNCDDlyAyIl0sIkdyb3VwcyI6WyJZZWFyIFs0XSJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUExMlFVVXJEUUJDR3A4a21wWkdVcUFoZUlnRVZRZlFoUGhSOVZsVHFVMW1UVFEzR1RkaWsya2RmOVFROWdVZndNb0tnSWw1Q0dtZVRMSlJkR1Bibnk4eWYrZmQ4Tk41enhnNEFtRUNJQWFhRkVxekxpeFAvQUFBQlFBOElET1E5eDZaTkZCSzZXQVNnLzQ3MWdmV0o5WVZzS0htNGVEdk9YczRnRlBQdjU0MEZoTCtINjFlanRlM3c5WFRyYVAvblNUTzJvb3lXSlFwdkJUb3hyV2lRQ0hyUHRQYUJ5QjhEanJ6czlqRFFFT3E2L3ROOVZaUFhMTjFDY3MybzZMUWJwMGt5S1ppSUprbktFU3cxaDM1ZVZHbk8wY09Rd1cxdHg1N1FnRGZqOHAreEg5M08rSjIvczZ0OU53cytsZGthMUI2MzAyUkZHKzBhcE83RzdXN2NabnlhY3FiaVpmU0daY281WmcrZEhPTDdOTW1EUXFTOFV1K0p0QXlxdktKcXhJbnlUSkVtT2l6L0FmSksrUElPQWdBQSJ9 -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"diff_perc_fin\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2011\",\"2\":\"0.02413273\"},{\"1\":\"2014\",\"2\":\"0.00450982\"},{\"1\":\"2017\",\"2\":\"0.72583835\"},{\"1\":\"2018\",\"2\":\"0.04351107\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[2]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[4]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

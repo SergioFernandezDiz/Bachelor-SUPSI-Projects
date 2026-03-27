@@ -1,0 +1,10 @@
+drop table report cascade constraints;
+drop table visit cascade constraints;
+drop table patient cascade constraints;
+drop table internal_doctor cascade constraints;
+drop table external_doctor cascade constraints;
+drop table diagnosis cascade constraints;
+drop table specialization cascade constraints;
+drop table prescribe cascade constraints;
+drop table drug cascade constraints;
+drop table repeat cascade constraints;

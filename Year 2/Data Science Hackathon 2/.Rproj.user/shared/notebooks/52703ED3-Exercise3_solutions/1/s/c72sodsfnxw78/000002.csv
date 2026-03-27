@@ -1,0 +1,16 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfRnVsbGpvaW4gPC0gc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZnVsbF9qb2luKHN3aXNzX3BvcClcbmBgYCJ9 -->
+
+```r
+swiss_Fulljoin <- swiss_gdp_tidy |>
+  full_join(swiss_pop)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_Fulljoin <- swiss_gdp_tidy |>
+  full_join(swiss_pop)
+```"
+"1","Joining with `by = join_by(Canton, Year)`
+"

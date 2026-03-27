@@ -1,0 +1,31 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD4gXG4gIHNlbGVjdChDYW50b24sIFllYXIscGVyY2VudF9maW5hbmNpYWwpIHw+ICMgU2VsZWN0cyBvbmx5IHRoZSBjb2x1bW5zIG9mIGludGVyZXN0XG4gIGZpbHRlcihDYW50b249PVwiVGljaW5vXCIgfCBDYW50b249PVwiVmF1ZFwiKSB8PiAjIFNlbGVjdHMgb25seSB0aGUgY2FudG9ucyBvZiBpbnRlcmVzdFxuICBwaXZvdF93aWRlcihuYW1lc19mcm9tID0gQ2FudG9uLHZhbHVlc19mcm9tID0gcGVyY2VudF9maW5hbmNpYWwpIHw+ICMgY3JlYXRlIHRoZSB0d28gY29sdW1uc1xuICBtdXRhdGUoZmluX3BlcmNfZGlmZj1WYXVkLVRpY2lubykgICMgQ29tcHV0ZSB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIHRoZSB0d28gY29sdW1uc1xuYGBgIn0= -->
+
+```r
+swiss_gdp_tidy |> 
+  select(Canton, Year,percent_financial) |> # Selects only the columns of interest
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |> # Selects only the cantons of interest
+  pivot_wider(names_from = Canton,values_from = percent_financial) |> # create the two columns
+  mutate(fin_perc_diff=Vaud-Ticino)  # Compute the difference between the two columns
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |> 
+  select(Canton, Year,percent_financial) |> # Selects only the columns of interest
+  filter(Canton==\"Ticino\" | Canton==\"Vaud\") |> # Selects only the cantons of interest
+  pivot_wider(names_from = Canton,values_from = percent_financial) |> # create the two columns
+  mutate(fin_perc_diff=Vaud-Ticino)  # Compute the difference between the two columns
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MTQsIm5jb2wiOjQsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMTQgw5cgNCJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUF3dHlpVERtaXVCaVlHQmdabUJoWVdKZ1pnVXlHVmhEUTl4MExSZ1lnQUlNREl3TUxBeWNJTG9DcUVnWXlHQUJZbDRnNW1OZ1lMOEJ4RGVCK0JZUTN3YmlPMEI4RjRqdkFmRjlJSDRBeEErQitCRVFQd2JpSjBEOEZLS1hnYzlCNmFCNDhkcXFMZ2NsN2tYR0szZW5PU2c4WGlrVHJ6WEhRZjVjenVMcExrME84ZzVWK3llNFd6bkk3NGhibXlyajR5Qjd1N0hYMDluTlFTN2hvL0d5MTFNY1pNMDJMenpabCtBZ2VTOWt5cHdOY2c2eURKWTdQb2d5T01pSkNKZFV6MDV3a0orVHpSN3Z0TXRCZnRXSHgvUEQyUkQyOHBmSTFuMHNjMUQ0NitOenNueWlnNEpnMnlxbk15Y2Q1SjhyUFdFK2Q5bEJOdWVLMXAzSEJRN3k3TmVDSmZZdWNaQjlJSDlNdS8yTmcweDR6YXFIcndzZHBHVEx2UDZ5NmpySUhKMjJQOVd3MFVGVzUvamp0SWJURGpKUG5EN05EdHJsSUhjdllNN2R6Y3NkWkg1STlzNzg3UWV6ZC84MWs2eWpGNVVhOWo5NEdwZkhZaHV3LzVhTG4zUDNyZ1Q3R2RzY2Nyb0NHZmJmdGNyME5yTlpzUCtZSUxkbjkxVUcrNktLeDUxQ014ajJQL0JlNHFiQktMSC94Y2xYMjFJOFo5Zy90eElNYytHV3NGL21MbXB0K3JSaC82Vy9ISElzWFFuN2p4LzJEVEI4bExELzZiUmRHN1R1SGtDTFFOYTh4TnpVWWlCREFCeUpFRUdXeU5URUlpaWJMU1F6T1RNdkh5WVRsbGlhQW1YenBtWG14UmVrRmlYSHAyU21wYUdaeTFtVVg2NEhNeHVVTUpnYWdNVC8vLzgvb1RzZ09TZXhHT1lBbUNCWFNtSkpvbDVhRVZBL2tQY1BUUXQ3ZmtGSlpuNGVVQk1US09teG9XbG1MRUlURUNqTkE3a2tSVGM1b3pRdlc5ZlFHRTJldVNBdkhXUXBXQWdDZUtGc1BpUTJDOFFaVFAraDJ0bGdJWlNhbDU2Wmx3cnpUMDVpVW1vT3pPU1UxRElva3c4WUlPRHcwQ3NveXN3cmdYa1VLRnFzVjVKZmtnalR3cFdjbndNVEFYdWQ0UjhBem85Uis1QURBQUE9In0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"Ticino\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Vaud\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"fin_perc_diff\"],\"name\":[4],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2008\",\"2\":\"9.377132\",\"3\":\"9.030183\",\"4\":\"-0.34694928\"},{\"1\":\"2009\",\"2\":\"9.022722\",\"3\":\"8.494723\",\"4\":\"-0.52799913\"},{\"1\":\"2010\",\"2\":\"8.444650\",\"3\":\"8.034231\",\"4\":\"-0.41041905\"},{\"1\":\"2011\",\"2\":\"7.951586\",\"3\":\"7.975719\",\"4\":\"0.02413273\"},{\"1\":\"2012\",\"2\":\"7.812968\",\"3\":\"7.356278\",\"4\":\"-0.45669014\"},{\"1\":\"2013\",\"2\":\"7.930049\",\"3\":\"7.757654\",\"4\":\"-0.17239514\"},{\"1\":\"2014\",\"2\":\"7.464361\",\"3\":\"7.468871\",\"4\":\"0.00450982\"},{\"1\":\"2015\",\"2\":\"7.594670\",\"3\":\"7.085437\",\"4\":\"-0.50923361\"},{\"1\":\"2016\",\"2\":\"7.303420\",\"3\":\"6.528772\",\"4\":\"-0.77464805\"},{\"1\":\"2017\",\"2\":\"6.467120\",\"3\":\"7.192958\",\"4\":\"0.72583835\"},{\"1\":\"2018\",\"2\":\"7.250220\",\"3\":\"7.293731\",\"4\":\"0.04351107\"},{\"1\":\"2019\",\"2\":\"7.519605\",\"3\":\"7.222912\",\"4\":\"-0.29669383\"},{\"1\":\"2020\",\"2\":\"7.902752\",\"3\":\"7.717104\",\"4\":\"-0.18564764\"},{\"1\":\"2021\",\"2\":\"7.916935\",\"3\":\"7.242285\",\"4\":\"-0.67464957\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[4]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[14]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

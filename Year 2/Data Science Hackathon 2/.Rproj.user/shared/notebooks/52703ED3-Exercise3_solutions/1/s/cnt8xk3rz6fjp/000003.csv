@@ -1,0 +1,23 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfcG9wIHw+IGZpbHRlcihDYW50b249PVwiQmVyblwiKVxuYGBgIn0= -->
+
+```r
+swiss_pop |> filter(Canton==\"Bern\")
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_pop |> filter(Canton==\"Bern\")
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInNwZWNfdGJsX2RmIiwidGJsX2RmIiwidGJsIiwiZGF0YS5mcmFtZSJdLCJucm93IjoxNCwibmNvbCI6Niwic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyIxNCDDlyA2Il19fSwicmRmIjoiSDRzSUFBQUFBQUFBQTgyVXY0c1RVUkRIMytYSEp0bGMxb2dpVjRra2hZVm1MMFk5VHF1TGlvVWdpRC9nck1JbTJVdUNtN2R4c3pFUkxBNjFPQ0ZJQ29VVXdvR05IbG9vV0J5V0ZpSVdJb0sxVnh4aXFZSW9DSWx2MzNmMlNQWXZjT0h4bVpsOTgrWTd3NzY5ZUdiNXFMcXNNc2JDTEJJSnNYQlVtQ3g2NWZMWjNDSmpJc0RZREl1d2hNZWUyTFJIR0lwWWFiRTBlaEU1WlRyOHY3WTlyV0lWOHllYlhudkZmREluT2YrN0RIN3VnWnZiNE1NM1lQYzVlT2t4bU5vbnFYL1lDOTYvRFo3N0JPN0MvdHpYVnd3UDZzYmxzYXdZdi9rTkxKTS92d2xtNjZEMlRqTDJkeFhjZmdxKy9BTU9rQmU3a3dhN2ErUy9BSjk5bjZxYjNjMWxQUE1EK2pLLzlvUGo5NUxaR2VSblJrUDRiRWkrQW42aC9XODFjS01QM2tOK3BvbTVaVXFIcCtyT2JrRFA3TnlpWlBJSjlDWVBRci82T2c2ZTM1Sk1iSDBFcjZQL1JKVG1OSmdEMHpTWFB2VEZvZ2NrRlNjL1dYZHAvWkYwbHRhSHhBZkVBYkZQWENQZUphNFNieEY3UkpmWUlsckVPcFdkdWlCUmJqVE5Oc1BsVUNpb25EYTRhL3VmbzNyQmJuVXN3MjNzUk9MRm1sbktsNDZjSUQvaCtZVjhhZUhZNUlhRjQ2VkQvaGQ5MVRTY1FPV0VZM2QxdjNwS3JKRFgwSGc4L2htVVdMR010aS9SRDZwVnd6WDBGVWZrQzI4VVNJblpMVSt1U0FwTlh2NmR2NElUQ0tRNzNGTlN6VlhxSFg0dFZ5Z0Uzb2Ridk9ZVmxTRThLYksxQ1Z1QmpOQTRPRStUMXhyYzlQdXhqTEpwK1NkWHpSdGthbUlnY2g1NnkybHcxMjlVUk51NmE3dUduNkpXYk11UHlOYlo2Qi9aM2RjTEVnVUFBQT09In0= -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Population\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_0_19\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_20_64\"],\"name\":[4],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Age_65_+\"],\"name\":[5],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"Year\"],\"name\":[6],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Bern\",\"2\":\"1063533\",\"3\":\"203904\",\"4\":\"624823\",\"5\":\"234806\",\"6\":\"2023\"},{\"1\":\"Bern\",\"2\":\"1051437\",\"3\":\"200509\",\"4\":\"620777\",\"5\":\"230151\",\"6\":\"2022\"},{\"1\":\"Bern\",\"2\":\"1047473\",\"3\":\"199744\",\"4\":\"621199\",\"5\":\"226530\",\"6\":\"2021\"},{\"1\":\"Bern\",\"2\":\"1043132\",\"3\":\"198135\",\"4\":\"622565\",\"5\":\"222432\",\"6\":\"2020\"},{\"1\":\"Bern\",\"2\":\"1039474\",\"3\":\"197741\",\"4\":\"622788\",\"5\":\"218945\",\"6\":\"2019\"},{\"1\":\"Bern\",\"2\":\"1034977\",\"3\":\"197081\",\"4\":\"622412\",\"5\":\"215484\",\"6\":\"2018\"},{\"1\":\"Bern\",\"2\":\"1031126\",\"3\":\"196464\",\"4\":\"622668\",\"5\":\"211994\",\"6\":\"2017\"},{\"1\":\"Bern\",\"2\":\"1026513\",\"3\":\"195733\",\"4\":\"622339\",\"5\":\"208441\",\"6\":\"2016\"},{\"1\":\"Bern\",\"2\":\"1017483\",\"3\":\"194111\",\"4\":\"618383\",\"5\":\"204989\",\"6\":\"2015\"},{\"1\":\"Bern\",\"2\":\"1009418\",\"3\":\"193024\",\"4\":\"615175\",\"5\":\"201219\",\"6\":\"2014\"},{\"1\":\"Bern\",\"2\":\"1001281\",\"3\":\"192610\",\"4\":\"611526\",\"5\":\"197145\",\"6\":\"2013\"},{\"1\":\"Bern\",\"2\":\"992617\",\"3\":\"192241\",\"4\":\"607461\",\"5\":\"192915\",\"6\":\"2012\"},{\"1\":\"Bern\",\"2\":\"985046\",\"3\":\"192630\",\"4\":\"603836\",\"5\":\"188580\",\"6\":\"2011\"},{\"1\":\"Bern\",\"2\":\"979802\",\"3\":\"193918\",\"4\":\"602006\",\"5\":\"183878\",\"6\":\"2010\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[6]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[14]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

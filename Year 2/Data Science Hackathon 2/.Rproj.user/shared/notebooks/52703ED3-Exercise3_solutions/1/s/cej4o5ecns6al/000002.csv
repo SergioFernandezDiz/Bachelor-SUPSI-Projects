@@ -1,0 +1,27 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD5cbiAgZmlsdGVyKENhbnRvbj09XCJUaWNpbm9cIiAmIHBlcmNlbnRfZmluYW5jaWFsPDcuNSkgIHw+XG4gIHNlbGVjdChjKFllYXIscGVyY2VudF9maW5hbmNpYWwpKVxuYGBgIn0= -->
+
+```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" & percent_financial<7.5)  |>
+  select(c(Year,percent_financial))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |>
+  filter(Canton==\"Ticino\" & percent_financial<7.5)  |>
+  select(c(Year,percent_financial))
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6Miwic3VtbWFyeSI6eyJBIHRpYmJsZSI6WyI0IMOXIDIiXX19LCJyZGYiOiJINHNJQUFBQUFBQUFBd3R5aVREbWl1QmlZR0JnWm1CaFlXSmdaZ1V5R1ZoRFE5eDBMUmdZZ0FJTURJd01MQXljSUxvQ3FFZ1l5QUFKOGdJeEN3TUQrejBnZmdERUQ0SDRFVkNNRHlUdUlIdTdzZGZUMmMxQjFtenp3cE45Q1E2UzkwS216TmtnNXlETFlMbmpneWdEbXNHc2VZbTVxY1ZBaGdEWWNJZ2dTMlJxWWhHVUxWaVFXcFNjbWxjU241YVpsNWlYbkptWWcyWUNaMUYrdVI3TUZKRFRtQnFBeFAvLy8vK2dXNVdjazFnTXN3b215SldTV0pLb2wxWUUxQS9rL1VQVHdwNWZVSktabndmVXhBVHlQQnVhWnNZaU5BSCswanlRUzFKMGt6Tks4N0oxVGRHa21Rdnkwa0YyZ29VZ2dCZktaa0ZpTTBGY3dmUWZxcDBOcXAwdE5TODlNeThWNXAyY3hLVFVISmpKS2FsbFVDWWZNRHpBd2FGWFVKU1pWd0x6SjFDMFdLOGt2eVFScG9Vck9UOEhKZ0wyT2NNL0FPY3JFM29SQWdBQSJ9 -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Year\"],\"name\":[1],\"type\":[\"int\"],\"align\":[\"right\"]},{\"label\":[\"percent_financial\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"2014\",\"2\":\"7.464361\"},{\"1\":\"2016\",\"2\":\"7.303420\"},{\"1\":\"2017\",\"2\":\"6.467120\"},{\"1\":\"2018\",\"2\":\"7.250220\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[2]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[4]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

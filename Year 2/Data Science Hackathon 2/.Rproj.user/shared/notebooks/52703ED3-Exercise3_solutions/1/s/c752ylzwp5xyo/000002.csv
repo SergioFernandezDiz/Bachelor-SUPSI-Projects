@@ -1,0 +1,20 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBBZGQgZmluYW5jaWFsIHBlcmNlbnRhZ2UgZnJvbSBleCAyXG5zd2lzc19nZHBfdGlkeSA8LSBzd2lzc19nZHBfdGlkeSB8PiBcbiAgbXV0YXRlKHBlcmNlbnRfZmluYW5jaWFsID0gYEZpbmFuY2lhbCBzZXJ2aWNlIGFjdGl2aXRpZXMgYW5kIGluc3VyYW5jZWAvYFRvdGFsYCoxMDApXG5zd2lzc19nZHBfdGlkeSA8LSBzd2lzc19nZHBfdGlkeSB8PiBcbiAgbXV0YXRlKHBlcmNlbnRfYWdyaWN1bHR1cmUgPSBgQWdyaWN1bHR1cmUsIGZvcmVzdHJ5IGFuZCBmaXNoaW5nYC9Ub3RhbCoxMDApXG5gYGAifQ== -->
+
+```r
+# Add financial percentage from ex 2
+swiss_gdp_tidy <- swiss_gdp_tidy |> 
+  mutate(percent_financial = `Financial service activities and insurance`/`Total`*100)
+swiss_gdp_tidy <- swiss_gdp_tidy |> 
+  mutate(percent_agriculture = `Agriculture, forestry and fishing`/Total*100)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+# Add financial percentage from ex 2
+swiss_gdp_tidy <- swiss_gdp_tidy |> 
+  mutate(percent_financial = `Financial service activities and insurance`/`Total`*100)
+swiss_gdp_tidy <- swiss_gdp_tidy |> 
+  mutate(percent_agriculture = `Agriculture, forestry and fishing`/Total*100)
+```"

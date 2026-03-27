@@ -1,0 +1,1411 @@
+---
+title: "Obesity Prediction Dataset"
+subtitle: Data Projects & Hackathon 2 by Fernandez, Keller, Carnio
+output:
+  cleanrmd::html_document_clean:
+    theme: water
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE,
+  echo = TRUE
+)
+```
+
+## 1. Introduction and Problem Setting
+
+<details>
+
+<summary>Click to expand</summary>
+
+In this project, we will be working with the **ObesityDataset** to conduct a thorough analysis of various features that may contribute to predicting obesity. The goal is to explore the dataset, uncover correlations between different features, and ultimately identify the most effective models for both classification and regression tasks.
+
+The final objective is to take on the role of both the client and the data science team. This means that we will define research questions based on the dataset, and then answer them through analysis.
+
+We aim to answer questions related to obesity prediction by leveraging classification models and regression techniques.
+
+### 1.1 Data Source
+
+-   **Dataset**: [Obesity Prediction Dataset on Kaggle](https://www.kaggle.com/datasets/adeniranstephen/obesity-prediction-dataset?select=ObesityDataSet_raw_and_data_sinthetic.csv)
+
+The **Obesity Prediction Dataset** is used for various tasks such as **regression**, **classification**, and **clustering**. It contains 17 columns, making it ideal for in-depth analysis and predictive modeling. The dataset is a combination of real data collected via a web platform and synthetic data, which adds diversity and robustness to the analysis.
+
+The dataset includes information gathered from individuals in Mexico, Colombia, and Peru, with a total of 2111 samples.
+
+</details>
+
+## 2. Key Questions:
+
+<details>
+
+<summary>Click to expand Key Questions</summary>
+
+#### 2.1 General Questions:
+
+##### Classification Task:
+
+-   **Can we predict an individual's obesity level (`NObeyesdad`) based on the available features?**
+-   **What is the best model for this task?**
+-   **Which features contribute the most to the prediction?**
+
+##### Regression Task
+
+-   **Can we predict an individual's weight (`Weight`) using the available features?**
+-   **What is the best model for this task?**
+-   **Which features contribute the most to the prediction?**
+
+#### 2.2 More Specific Questions
+
+#### Feature Importance:
+
+-   Is there a stronger impact on BMI from dietary habits or from physical activity levels ?
+
+#### Correlation Analysis:
+
+-   What type of correlation can we observe between the features? How can this analysis provide insights into how to handle them in predictive models?
+
+#### Hypothesis Testing:
+
+-   Can we confirm through this dataset whether (`family_history_withoverweight`) influences weight?
+-   Can we observe any impact on BMI by analyzing the main mode of transportation (`MTRANS`)?
+
+</details>
+
+## 3. Data Exploration and cleaning:
+
+<details>
+
+<summary>Click to expand Data Exploration and cleaning</summary>
+
+### 3.1 Data Exploration
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(readr)
+library(corrplot)
+library(psych)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(reshape2)
+library(tidyverse)
+library(tidymodels)
+library(randomForest)
+library(vip)
+library(kknn)
+library(MASS)  
+library(discrim)
+library(klaR)
+library(discrim)
+library(yardstick)
+library(rsample)
+library(rpart)
+library(corrr)
+library(performance)
+library(glmnet)
+library(ranger)
+
+
+
+# Read csv
+dataset <- read_csv("ObesityDataSet.csv")
+print(dataset)
+
+```
+
+```{r message=FALSE, warning=FALSE}
+
+# Analyze dimention/shape of the dataset
+cat(sprintf("Shape of the dataset: %d x %d\n", dim(dataset)[1], dim(dataset)[2]))
+cat(rep("-", 20), "\n")
+# Analyze important info about feautures
+str(dataset)
+# Take info from describe()
+describe(dataset)
+cat(rep("-", 20), "\n")
+summary(dataset)
+```
+
+As we can observe, the dataset consists of a total of **2111 samples** and contains **17 features**. Upon analyzing the structure of the dataset using the `str()` function, we can see that it includes both **categorical** and **numerical features**:
+
+-   **Categorical Features**: These include variables like `Gender`, `family_history_with_overweight`, `FAVC`, `CAEC`, and others.
+-   **Numerical Features**: These include continuous variables such as `Age`, `Height`, `Weight`, and others that are **discrete variable** such as `FCVC` `NCP`.
+
+This distinction between categorical and numerical features indicates that we will need to **encode** the categorical features before using them in predictive models. Encoding will allow us to transform these categorical variables into a numerical format, making them suitable for machine learning algorithms.
+
+### 3.2 Find duplicate data
+
+```{r}
+# Find duplicates and count the number
+duplicated_rows <- duplicated(dataset) 
+table(duplicated_rows)
+
+# Remove duplicated data
+dataset <- unique(dataset)
+```
+
+Since duplicated data can cause small issues in future modeling, we prefer to remove duplicates from the dataset. Additionally, the number of duplicates is relatively small compared to the overall size of the dataset, making it a reasonable choice to eliminate them.
+
+By removing these duplicates, we ensure that the model is trained on unique data, preventing potential biases that could arise from repeated records.
+
+### 3.3 Find missing values
+
+```{r}
+# Find missing values and count the number
+missing_values <- is.na(dataset)
+table(missing_values)
+```
+
+We don't have missing values
+
+### 3.4 Data Encoding
+
+```{r}
+# 1. Binary Encoding (for Gender, SMOKE, family_history_with_overweight, SCC, FAVC)
+dataset_encoded <- dataset %>%
+  mutate(
+    Gender = ifelse(Gender == "Female", 0, 1),
+    SMOKE = ifelse(SMOKE == "yes", 1, 0),  
+    family_history_with_overweight = ifelse(family_history_with_overweight == "yes", 1, 0),  
+    SCC = ifelse(SCC == "yes", 1, 0),  
+    FAVC = ifelse(FAVC == "yes", 1, 0)  
+  )
+
+# 2. Ordinal Encoding (for CALC, CAEC)
+dataset_encoded <- dataset_encoded %>%
+  mutate(
+    CALC = factor(CALC, levels = c("no", "Sometimes", "Frequently", "Always"), ordered = TRUE),
+    CALC = as.numeric(CALC) - 1,
+    
+    CAEC = factor(CAEC, levels = c("no", "Sometimes", "Frequently", "Always"), ordered = TRUE),
+    CAEC = as.numeric(CAEC) - 1,
+    
+    NObeyesdad = factor(NObeyesdad, levels = c("Insufficient_Weight", "Normal_Weight", "Overweight_Level_I", "Overweight_Level_II", "Obesity_Type_I", "Obesity_Type_II","Obesity_Type_III")),
+    NObeyesdad = as.numeric(NObeyesdad) - 1
+  )
+
+# 3. One-Hot Encoding (for MTRANS)
+dataset_encoded <- dataset_encoded %>%
+  mutate(
+
+    MTRANS_Automobile = ifelse(MTRANS == "Automobile", 1, 0),
+    MTRANS_Bike = ifelse(MTRANS == "Bike", 1, 0),
+    MTRANS_Motorbike = ifelse(MTRANS == "Motorbike", 1, 0),
+    MTRANS_Public_Transportation = ifelse(MTRANS == "Public_Transportation", 1, 0),
+    MTRANS_Walking = ifelse(MTRANS == "Walking", 1, 0),
+
+  ) %>%
+  dplyr::select(-MTRANS)  
+  
+print(dataset_encoded)
+
+```
+
+For the encoding step, we have chosen to use three different methods.
+
+-   **Binary Encoding** for features such as `Gender`, `SMOKE`, etc., which are categorical variables with only two possible values.
+-   **Ordinal Encoding** for `CALC` and `CAEC`, as these features have a meaningful order that must be preserved.
+-   **One-Hot Encoding** for `MTRANS`, since it is a categorical variable with no inherent order.
+
+As a result, the final dataset consists of only numerical features and contains a total of 21 columns.
+
+### 3.4 Data Distribution
+
+#### 3.4.1 Numerical Continuous
+
+```{r fig.width=12, fig.height=8}
+
+numeric_features <- c("Weight", "Age", "Height")
+other_features <- c("FCVC", "NCP", "CH2O", "FAF", "TUE")
+
+dataset_long <- dataset_encoded %>%
+  dplyr::select(c(numeric_features, other_features)) %>% 
+  pivot_longer(cols = everything(), names_to = "Feature", values_to = "Value")
+
+ggplot(dataset_long %>% filter(Feature %in% numeric_features), aes(x = Value)) +  
+  geom_density(fill = "skyblue", alpha = 0.5) +  
+  theme_minimal() +
+  labs(title = "Density Plot", x = "Value", y = "Density") +
+  facet_wrap(~ Feature, scales = "free") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplot(dataset_long %>% filter(Feature %in% other_features), aes(x = Value)) +  
+  geom_histogram(fill = "skyblue", color = "black", bins = 30) +  
+  theme_minimal() +
+  labs(title = "Histogram", x = "Value", y = "Frequency") +
+  facet_wrap(~ Feature, scales = "free") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+As we can observe, our dataset includes three main continuous numerical features: **Age**, **Height**, and **Weight**.
+
+-   **Age**: The distribution of age does **not follow a normal distribution**. We see a strong density peak around the age of **22**, which suggests that the dataset may not represent a truly random population. This could be due to **selection bias**, or more likely, due to the fact that part of the dataset is **synthetically generated**.
+
+-   **Height**: The height feature shows a distribution that is **approximately normal**, with a bell-shaped curve and a symmetric profile. Some minor peaks may be explained by **rounding effects** (e.g., many individuals recorded as exactly 1.70 m or 1.75 m), which is common in survey or self-reported data.
+
+-   **Weight**: Weight clearly **does not follow a normal distribution**. The distribution is right-skewed and presents **multiple peaks**, possibly indicating **clusters** or synthetic generation. Moreover, the **mean weight is significantly high** (around 90 kg), suggesting the dataset may primarily include individuals with weight-related conditions. This again supports the idea that the sample is not representative of the general population, but rather a targeted or synthetic population focused on obesity prediction.
+
+These observations are important when building predictive models, as the **non-normality** and **sample bias** could affect the choice of algorithms and the interpretation of results.
+
+#### 3.4.1 Binary / Discrete
+
+```{r fig.width=12, fig.height=8}
+
+features <- c("SMOKE", "MTRANS", "family_history_with_overweight", "Gender", "SCC", "FAVC", "CALC", "CAEC", "NObeyesdad")
+
+dataset_long <- dataset %>%
+  dplyr::select(features) %>%
+  pivot_longer(cols = everything(), names_to = "Feature", values_to = "Value")
+
+ggplot(dataset_long, aes(x = Value)) +  
+  geom_bar(fill = "darkorange", color = "black") + 
+  theme_minimal() +
+  labs(title = "Bar Plot for Binary Features", x = "Value", y = "Density") +
+  facet_wrap(~ Feature, scales = "free") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+From the bar plots showing the distribution of **categorical features**, we can observe that several variables exhibit a clear **class imbalance**. For example:
+
+-   **SMOKE** and **SCC**: The majority of individuals in the dataset are non-smokers and do not monitor their calorie intake. This strong imbalance is important to acknowledge, as it limits the reliability of applying **statistical hypothesis tests** (such as t-tests or Wilcoxon tests) on these features. When one category has very few observations, estimates like the **standard deviation** or **variance** can become unstable or misleading. Therefore, any statistical conclusions drawn from these imbalanced variables must be interpreted with caution, and alternative methods (bootstrapping, resampling, or ignoring the variable) may be necessary.
+
+On the other hand:
+
+-   \*Gender **is relatively** balanced\*\*, which is ideal for modeling and statistical inference.
+
+-   **Target variable — NObeyesdad** (obesity level): The class distribution is **reasonably uniform**, with each obesity category having a comparable number of instances. This balanced target makes it suitable for classification models without requiring resampling or others techniques.
+
+### 3.5 Outliers detection
+
+```{r fig.width=12, fig.height=8}
+
+features <- c("Age", "Height", "Weight", "FCVC", "NCP", "CH2O", "FAF", "TUE")
+
+dataset_long <- dataset_encoded %>%
+  dplyr::select(all_of(features)) %>%
+  pivot_longer(cols = everything(), names_to = "Feature", values_to = "Value")
+
+ggplot(dataset_long, aes(x = Feature, y = Value)) +  
+  geom_boxplot(fill = "skyblue", alpha = 0.5) +  
+  theme_minimal() +
+  labs(title = "Boxplot for Features", x = "Feature", y = "Value") + 
+  facet_wrap(~ Feature, scales = "free") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+From the boxplots of our numerical features, we can observe the presence of **outliers** in certain variables, specifically:
+
+-   **Age**: There are several values above the upper whisker, indicating potential outliers. However, these values (e.g., around 50–60 years old) are **realistic and valid** within the context of a human population. Therefore, we **decided to retain these values**, as they do not represent data entry errors but rather reflect legitimate individuals with higher ages in the dataset.
+
+-   **NCP** (Number of Meals per Day): We also detect a few outliers below and above the box range. Nevertheless, the distribution shows that **most individuals report eating around 3 meals per day**, which aligns with common dietary habits. The presence of values such as 1 or 4 meals is **plausible** and may reflect particular lifestyle or cultural patterns, so these are also kept in the dataset.
+
+### 3.6 Feauture Correlations
+
+```{r fig.width=10, fig.height=8}
+
+cor_matrix <- cor(dataset_encoded[, c("Age", "Height", "Weight", "FCVC", "NCP","FAF","TUE","CH2O","family_history_with_overweight","FAVC","CAEC","SMOKE","SCC","CALC","NObeyesdad")])
+cor_melted <- melt(cor_matrix)
+
+
+ggplot(cor_melted, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +  
+  scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, name = "Correlation") + 
+  theme_minimal() +
+  labs(title = "Correlation Heatmap", x = "Features", y = "Features") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  
+  geom_text(aes(label = round(value, 2)), color = "black", size = 4)  
+
+
+```
+
+Analyzing feature correlations is a key step in the preprocessing pipeline, especially for two main reasons:
+
+1.  **Dimensionality reduction**: If two features are highly correlated with each other, they may provide redundant information to the model.
+
+2.**Relationship with the target**: Correlation with the target variable helps identify features that are likely to be predictive and valuable during training.
+
+From the heatmap above, we observe some important insights:
+
+-   **Weight and NObeyesdad** (the classification target) show a **very high correlation (0.91)**. This indicates that they essentially carry the same information in different forms. Therefore, it's crucial to **exclude one of them** when training a model for the other target. For example:
+
+    -   When training a model to predict `NObeyesdad`, we should not include `Weight`.
+    -   Likewise, when predicting `Weight`, `NObeyesdad` should be excluded to avoid data leakage.
+
+-   The feature **family_history_with_overweight** shows a **moderate correlation (0.49)** with **Weight**, suggesting it could be an **important predictor** in a regression task. This aligns with domain expectations — individuals with family history of overweight are more likely to have higher weight themselves.
+
+-   Other features such as **Height**, **FCVC**, and **CH2O** show weaker but still relevant correlations with **Weight**, and might contribute complementary information when combined in a predictive model.
+
+### 3.7 Data visualization
+
+```{r}
+
+ggplot(dataset, aes(x = Height, y = Weight, color = Gender)) +
+  geom_point() +  
+  labs(title = "Scatter Plot of Weight vs Height",
+       x = "Height (m)",
+       y = "Weight (kg)",
+       color = "Gender") +  
+  theme_minimal()
+```
+
+As observed in the previous correlation heatmap, **Height** and **Weight** show a strong positive correlation. To further explore this relationship, we created a scatter plot.
+
+From this visualization, we can draw several insights:
+
+-   There is a **clear upward trend**, confirming that **taller individuals tend to have higher weight**, which is a normal physiological correlation.
+-   When comparing genders, **males generally have greater height** than females — this aligns with expectations from population data.
+-   Interestingly, in the **height range between 1.65 m and 1.85 m**, we notice that **females tend to have higher weight values** than males. This inversion is noteworthy and may reflect **differences in body composition**, **sample imbalance**, or the **synthetic nature** of the dataset.
+-   This correlation structure should be carefully considered before applying **statistical tests** like the t-test to study whether features such as `family_history_with_overweight` influence `Weight`. Since `Height` is a confounding factor, ignoring it could bias the interpretation of such tests. A better approach would be to **adjust for Height**, for instance by analyzing **BMI** instead of raw weight.
+
+```{r}
+ggplot(dataset, aes(x = NObeyesdad, fill = Gender)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Obesity Levels by Gender", x = "NObeyesdad", y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The bar plot above shows the distribution of the classification target variable `NObeyesdad` (obesity level), broken down by gender. While the overall class distribution appears relatively balanced across most categories, we notice a clear **class imbalance** particularly in:
+
+-   **Obesity_Type_II**
+-   **Obesity_Type_III**
+
+These classes have significantly more observations compared to others like `Insufficient_Weight` or `Normal_Weight`, and the imbalance is even more pronounced within the gender subgroups.
+
+To address this, we experimented with combining `Obesity_Type_II` and `Obesity_Type_III` into a single category to mitigate the imbalance and simplify the classification task. However, this transformation **did not lead to meaningful improvements in model performance** during evaluation.
+
+```{r}
+ggplot(dataset, aes(x = family_history_with_overweight, fill = NObeyesdad)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Family History of Overweight vs. Obesity Levels",
+    x = "Family History with Overweight",
+    y = "Count"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+</details>
+
+## 4. Hypothesis Testing:
+
+<details>
+
+<summary>Click to expand Hypothesis Testing</summary>
+
+### 4.1 Can we confirm through this dataset whether family_history_withoverweight influences weight?
+
+**Hypothesis Testing: Influence of family_history_withoverweight on Weight**
+
+The objective of this hypothesis test is to determine whether **family_history_withoverweight** (represented by variable, with values `Yes` and `No`) has a significant effect on **weight** (represented by the `Weight` variable).
+
+#### Null Hypothesis (H0):
+
+-   **H0**: There is no significant difference in weight between individuals with family_history_withoverweight or not.
+
+#### Alternative Hypothesis (H1):
+
+-   **H1**: family_history_withoverweight has a significant effect on weight, meaning individuals with family_history_withoverweight true may have different weights compared to those who do not.
+
+#### Method:
+
+We will perform **statistical tests** to compare the two groups We will use a **t-test** or **Wilcoxon-signed test** (if data is non-normally distributed).
+
+```{r}
+
+mean_weight <- mean(dataset_encoded$Weight, na.rm = TRUE)
+sd_weight <- sd(dataset_encoded$Weight, na.rm = TRUE)
+
+simulatedGauss_weight <- 
+  tibble(Weight = rnorm(n = 1000,
+                        mean = mean_weight,
+                        sd = sd_weight))
+
+ggplot() +
+  geom_density(data = simulatedGauss_weight, aes(x = Weight), color = "black", size = 1) +
+  geom_density(aes(x = dataset_encoded$Weight), color = "blue", size = 1) +
+  labs(title = "Comparison between Real Data and Simulated Normal Distribution for Weight", 
+       x = "Weight", y = "Density") +
+  theme_minimal()
+qqnorm(dataset_encoded$Weight)
+qqline(dataset_encoded$Weight, col = "red")  
+
+
+```
+
+As a first step before applying any hypothesis test involving the `Weight` variable, we assessed whether it follows a **normal distribution**, since this is a key assumption for parametric tests such as the **t-test**.
+
+To do this, we compared the **real distribution of Weight** (in blue) with a **simulated normal distribution** (in black), using the same mean and standard deviation as the real data. From the plot above, we can already notice **clear deviations** from the bell-shaped curve, especially around the peaks and tails.
+
+To reinforce this observation, we also examined the **Q-Q plot**, which provides a graphical tool to assess normality. The points in the Q-Q plot do **not lie along the reference line**, particularly in the extremes, which confirms that the distribution of `Weight` is **not normal**.
+
+Due to this, we opted for the **Wilcoxon rank-sum test**, a non-parametric alternative to the t-test. The **Wilcoxon test does not assume normality**, making it more robust and appropriate for skewed or irregularly distributed data like ours.
+
+```{r}
+
+ggplot(dataset_encoded, aes(x = Height, y = Weight, color = family_history_with_overweight)) +
+  geom_point() +  
+  labs(title = "Scatter Plot of Weight vs Height",
+       x = "Height (m)",
+       y = "Weight (kg)",
+       color = "family_history_overweight") +  
+  theme_minimal()
+
+```
+
+#### 4.1.1 T-test
+
+```{r}
+
+t_test_result_weight <- t.test(Weight ~ family_history_with_overweight, data = dataset_encoded)
+print(t_test_result_weight)
+
+```
+
+#### 4.1.2 Wilcoxon-signed test
+
+```{r}
+
+wilcoxon_test_result_weight <- wilcox.test(Weight ~ family_history_with_overweight, data = dataset_encoded)
+print(wilcoxon_test_result_weight)
+
+```
+
+Both the t-test and the Wilcoxon test return a **p-value \< 2.2e-16**, which is well below the standard threshold of **0.05**.
+
+his allows us to **reject the null hypothesis**, confirming that there is a **statistically significant difference in weight** between individuals with and without a family history of overweight.
+
+```{r}
+
+dataset_BMI <- dataset_encoded %>%
+  mutate(BMI = Weight / (Height^2)) %>%
+  dplyr::select(-Weight,-Height)
+
+dataset_BMI_noEncoded <- dataset %>%
+  mutate(BMI = Weight / (Height^2)) %>%
+  dplyr::select(-Weight,-Height)
+  
+mean_BMI <- mean(dataset_BMI$BMI, na.rm = TRUE)
+sd_BMI <- sd(dataset_BMI$BMI, na.rm = TRUE)
+
+simulatedGauss_BMI <- 
+  tibble(BMI = rnorm(n = 1000,
+                        mean = mean_BMI,
+                        sd = sd_BMI))
+
+ggplot() +
+  geom_density(data = simulatedGauss_BMI, aes(x = BMI), color = "black", size = 1) +
+  geom_density(aes(x = dataset_BMI$BMI), color = "blue", size = 1) +
+  labs(title = "Comparison between Real Data and Simulated Normal Distribution for BMI", 
+       x = "BMI", y = "Density") +
+  theme_minimal()
+qqnorm(dataset_BMI$BMI)
+qqline(dataset_BMI$BMI, col = "red") 
+
+
+```
+
+```{r}
+
+wilcoxon_test_BMI <- wilcox.test(BMI ~ family_history_with_overweight, data = dataset_BMI)
+print(wilcoxon_test_BMI)
+
+dataset_BMI_noEncoded %>%
+  ggplot(aes(x = family_history_with_overweight, y = BMI)) + 
+  geom_boxplot(fill = "lightblue", color = "black") +  
+  labs(title = "BMI Distribution by family_history_with_overweight",
+       x = "family_history_overweight",
+       y = "BMI") +
+  theme_minimal() +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+At this point, we decided to repeat the test using a new feature: **BMI** (Body Mass Index). While our initial test focused on `Weight`, we realized that **weight alone is influenced by height**, and does not fully capture a person's body condition.
+
+Since our true goal was to evaluate whether having obese family members affects a person’s **weight status**, we introduced **BMI**, which relates weight to height and provides a more accurate picture of body composition.
+
+We then ran the same hypothesis test using `BMI` instead of `Weight`.
+
+**Result**:\
+Just like before, we obtained a **very low p-value**, allowing us to **reject the null hypothesis** once again. This confirms that there is a **statistically significant difference in BMI** between individuals with and without a family history of overweight.
+
+### 4.2 Can we observe any impact on BMI by analyzing the main mode of transportation (`MTRANS`)?
+
+**Hypothesis Testing: Influence of MTRANS on Weight**
+
+The objective of this hypothesis test is to determine whether the main mode of transportation (MTRANS) has a significant effect on BMI (represented by the Weight and Height)
+
+#### Null Hypothesis (H0):
+
+-   **H0:**: There is no significant difference in BMI between individuals who use different modes of transportation.
+
+#### Alternative Hypothesis (H1):
+
+-   **H1:**: The mode of transportation significantly influences BMI, meaning individuals using different modes of transportation may have different mean weights.
+
+#### Method:
+
+To test if there is a significant difference in **BMI** across the various modes of transportation (since **MTRANS** is categorical and Weight is continuous) we are gonna need a **One-Way-ANOVA**
+
+```{r}
+
+dataset_BMI_noEncoded %>%
+  ggplot(aes(x = MTRANS, y = BMI, fill = MTRANS)) + 
+  geom_boxplot(color = "black") +  
+  scale_fill_manual(values = c(
+    "Public_Transportation" = "red",
+    "Automobile" = "red",
+    "Bike" = "lightblue",
+    "Motorbike" = "lightblue",
+    "Walking" = "lightblue"
+  )) +
+  labs(title = "BMI Distribution by Mode of Transportation",
+       x = "Mode of Transportation",
+       y = "BMI") +
+  theme_minimal() +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+
+```
+
+```{r}
+
+# Step 1: Calculate the observed F-statistic
+observed_f_statistic <- dataset_BMI_noEncoded %>%
+  specify(BMI ~ MTRANS) %>%
+  hypothesize(null = "independence") %>%
+  calculate(stat = "F")
+
+# Step 2: Generate the null distribution through permutation
+null_dist <- dataset_BMI_noEncoded %>%
+  specify(BMI ~ MTRANS) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "F")
+
+# Step 3: Calculate the p-value
+p_value <- null_dist %>%
+  get_p_value(obs_stat = observed_f_statistic, direction = "greater")
+
+# Print the p-value
+print(p_value)
+
+null_dist %>%
+  visualize() +
+  shade_p_value(observed_f_statistic, direction = "greater") +
+  labs(title = "Simulation-Based Null Distribution",
+       x = "F-statistic", y = "Count")
+
+
+```
+
+As a first step, we performed a **One-Way ANOVA** to test whether BMI differs across the various transportation groups (`MTRANS`).\
+The result returned a **p-value = 0**, which is far below the significance threshold (0.05), allowing us to **reject the null hypothesis**.
+
+his confirms that **at least one group** differs significantly in terms of BMI.\
+However, ANOVA does **not tell us which category** is responsible for this difference — it only indicates that **a difference exists somewhere** among the groups.
+
+```{r}
+
+temp_dat <- dataset_BMI_noEncoded |> filter(MTRANS !='Public_Transportation')
+
+# Step 1: Calculate the observed F-statistic
+observed_f_statistic <- temp_dat %>%
+  specify(BMI ~ MTRANS) %>%
+  hypothesize(null = "independence") %>%
+  calculate(stat = "F")
+
+# Step 2: Generate the null distribution through permutation
+null_dist <- temp_dat %>%
+  specify(BMI ~ MTRANS) %>%
+  hypothesize(null = "independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "F")
+
+# Step 3: Calculate the p-value
+p_value <- null_dist %>%
+  get_p_value(obs_stat = observed_f_statistic, direction = "greater")
+
+# Print the p-value
+print(p_value)
+
+null_dist %>%
+  visualize() +
+  shade_p_value(observed_f_statistic, direction = "greater") +
+  labs(title = "Simulation-Based Null Distribution without Public_Transportation",
+       x = "F-statistic", y = "Count")
+
+
+```
+
+As a second step, we decided to **remove one category from `MTRANS`** and repeat the ANOVA, in order to better isolate which group might be driving the observed difference.
+
+To choose which category to remove, we first analyzed the **boxplot of BMI by transportation mode**. The two groups with visibly distinct distributions were: - **Automobile** - **Public Transportation**
+
+We then examined the **variance** of these groups, and observed that **Public Transportation** had the **highest variability**, making it a strong candidate for removal.
+
+The results still show a **statistically significant difference** (p-value \< 0.05), confirming that **even among the remaining transportation modes**, there are significant BMI differences across groups.
+
+```{r}
+
+temp_dat <- dataset_BMI_noEncoded |> filter(MTRANS %in% c("Bike","Motorbike","Wallking"))
+
+observed_statistic <- temp_dat |>
+  specify(BMI~MTRANS) |>
+  hypothesize(null = "independence") |>
+  calculate(stat = "diff in means")
+
+# generate the null distribution 
+null_dist <- temp_dat |>
+  specify(BMI~MTRANS) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in means")
+
+# visualize the null distribution 
+# and test statistic.
+null_dist |>
+  visualize() + 
+  shade_p_value(observed_statistic,
+                direction = "two-sided")
+
+# calculate the p value 
+null_dist |>
+  get_p_value(obs_stat = observed_statistic,
+              direction = "two-sided")
+
+```
+
+As a final step, we removed **Automobile** as well and repeated the ANOVA test on the remaining transportation modes: **Bike**, **Motorbike**, and **Walking**.
+
+This time, the test returned a **p-value of 0.8**, which is well above the standard threshold (0.05).\
+This means we **fail to reject the null hypothesis**, suggesting that there is **no significant difference** in BMI among individuals using these three modes of transportation.
+
+**Conclusion**:\
+The observed BMI differences are mainly driven by individuals who use **Automobile** or **Public Transportation**. These two groups show **distinct BMI distributions** compared to those who use **Bike**, **Motorbike**, or **Walking**, which seem to form a more homogeneous population in terms of BMI.
+
+</details>
+
+## 5. Feauture Importance:
+
+<details>
+
+<summary>Click to expand Feauture Importance</summary>
+
+### 5.1 Is there a stronger impact on BMI from dietary habits (e.g., `FAVC`, `FCVC`, `CAEC`) or from physical activity levels (e.g., `FAF`, `TUE`)?
+
+```{r}
+
+# Select relevant variables 
+dietary_vars  <- dataset_BMI %>%
+  dplyr::select(BMI, FAVC, FCVC, CAEC,NCP,CALC)  
+
+activity_vars <- dataset_BMI %>%
+  dplyr::select(BMI, FAF, TUE, SCC)
+
+# Create the correlation table
+dietrary_table <- correlate(dietary_vars)
+activity_table <- correlate(activity_vars)
+
+# Rearrange and visualize
+print(dietrary_table)
+print(activity_table)
+
+```
+
+```{r}
+
+dietary_corr <- dietrary_table %>%
+  filter(term == "BMI") %>%
+  dplyr::select(-term) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "Correlation") %>%
+  mutate(Group = "Dietary")
+
+activity_corr <- activity_table %>%
+  filter(term == "BMI") %>%
+  dplyr::select(-term) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "Correlation") %>%
+  mutate(Group = "Activity")
+
+combined_corr <- bind_rows(dietary_corr, activity_corr)
+
+ggplot(combined_corr, aes(x = reorder(Variable, Correlation), y = Correlation, fill = Group)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Correlazione con BMI",
+       x = "Variabile",
+       y = "Coefficiente di correlazione") +
+  scale_fill_manual(values = c("Dietary" = "skyblue", "Activity" = "orange")) +
+  theme_minimal()
+
+```
+
+As we can see from the plot above, **dietary features** show a **stronger correlation** with BMI compared to **activity-related features**.
+
+In particular, variables like `FCVC`, `FAVC`, and `CALC` have the highest positive correlations, while `CAEC` (frequency of eating between meals) shows a negative one. On the other hand, activity features such as `FAF` (physical activity frequency) and `TUE` (technology usage) have weaker correlations.
+
+A more robust way to compare the predictive power of these groups would be to train **two separate regression models**: - One using only **dietary features** - One using only **activity features**
+
+However, this comparison would be **biased** since the number of features is **not the same** in each group, and more features generally offer more predictive power.
+
+</details>
+
+## 6. Regression Task:
+
+<details>
+
+<summary>Click to expand Regression Task</summary>
+
+As a first modeling step, we decided to use a **simple linear regression model** to predict `BMI`.
+
+### Linear Model
+
+```{r}
+set.seed(42)  
+
+regression_data <- dataset_encoded %>%
+  dplyr::select(-NObeyesdad)
+
+data_split <- initial_split(regression_data, prop = 0.7)
+
+# Split the data into training and testing sets 
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+# Create the Linear Regression Model
+lm_model <- linear_reg() %>% 
+  set_engine("lm")  
+
+```
+
+```{r}
+lm_recipe <- recipe(Weight ~ ., data = train_data) |>
+  step_normalize(all_predictors())
+
+lm_workflow <- workflow() |>
+  add_recipe(lm_recipe) |>
+  add_model(lm_model)
+
+lm_fit <- lm_workflow |> fit(data = train_data)
+
+```
+
+```{r}
+
+lm_pred <- predict(lm_fit, new_data = test_data)$.pred 
+
+ggplot(data = data.frame(actual = test_data$Weight, predicted = lm_pred),
+       aes(x = actual, y = predicted)) +
+  geom_point(alpha = 0.6, color = "blue") +  
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +  
+  labs(title = "Linear Regression: Predicted vs Actual",
+       x = "Actual Weight", y = "Predicted Weight") + 
+  theme_minimal()
+
+
+train_withResid <- augment(lm_fit, new_data = test_data) 
+
+train_withResid |> 
+  ggplot() + 
+  geom_point(aes(x = .pred, y = .resid)) +  
+  labs(title = "Residuals vs Predicted Values", x = "Predicted Values", y = "Residuals")
+
+```
+
+```{r}
+lm_fit |> 
+  extract_fit_engine() |> 
+  summary()
+
+lm_fit |> extract_fit_engine() |>  check_model()
+
+```
+
+The linear regression model achieved a **residual standard error of 17.43**, which is quite high considering the scale of the target variable (`Weight`). This indicates that the model’s predictions are, on average, off by around 17.4 kg.
+
+The **R-squared** value is **0.554**, meaning that the model explains approximately **55% of the variance** in the data.
+
+The **overall p-value** for the model is extremely low (**\< 2.2e-16**), which confirms that the regression model as a whole is statistically significant, at least some of the predictors have a real effect on `Weight`.
+
+### Lasso Regression
+
+```{r}
+
+lasso_model_spec <- linear_reg(penalty = tune(), mixture = 1) |>
+  set_engine('glmnet')
+
+```
+
+```{r}
+set.seed(123)
+data_10fold <- vfold_cv(train_data, v = 10)
+
+recipe_lasso <- recipe(Weight ~ ., data = train_data) |>
+  step_normalize(all_predictors())
+
+lasso_workflow <- workflow() |>  
+  add_recipe(recipe_lasso) |>  
+  add_model(lasso_model_spec)
+
+penalty_grid <- grid_regular(penalty(), levels = 50)
+
+tune_results <- lasso_workflow |> 
+  tune_grid(
+    resamples = data_10fold, 
+    grid = penalty_grid, 
+    metrics = metric_set(yardstick::rmse, yardstick::rsq)
+  )
+
+best_penalty <- select_best(tune_results, metric = "rmse") |> 
+  pull(penalty)
+
+autoplot(tune_results)
+
+```
+
+```{r}
+
+lasso_final_model <- linear_reg(penalty = best_penalty, mixture = 1) |> 
+  set_engine("glmnet")
+
+final_workflow <- workflow() |>  
+  add_recipe(recipe_lasso) |>  
+  add_model(lasso_final_model)
+
+wfl_fit <- final_workflow |> fit(train_data)
+
+```
+
+```{r}
+
+lasso_pred <- predict(wfl_fit, new_data = test_data)
+
+test_data <- test_data |> 
+  mutate(.pred_lasso = lasso_pred$.pred)
+
+yardstick::metrics(test_data, truth = Weight, estimate = .pred_lasso)
+  
+```
+
+```{r}
+ggplot(test_data, aes(x = Weight, y = .pred_lasso)) +
+  geom_point(alpha = 0.6, color = "blue") +  
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +  
+  labs(
+    title = "Lasso Regression: Predicted vs Actual",
+    x = "Actual Weight",
+    y = "Predicted Weight"
+  ) + 
+  theme_minimal()
+
+wfl_fit |> extract_fit_parsnip() |> tidy()
+
+```
+
+Similar to the previous linear model, the **Lasso Regression** also shows **limited performance**, with a **residual error of 17.8** and an **R² of 0.55**, practically the same as the baseline model.
+
+After tuning the `penalty` (regularization), we observed that the **optimal lambda value was relatively high**, indicating that the model is applying **strong regularization**. This suggests that the model is **shrinking many coefficients close to zero**, which could be helpful for feature selection but limits predictive accuracy.
+
+In conclusion, while Lasso helps with variable selection, it **does not significantly improve prediction performance** compared to ordinary linear regression.
+
+### Random Forest
+
+```{r}
+
+rf_fit <- randomForest(Weight ~ ., data = train_data, importance = TRUE, ntree = 500)
+
+rf_pred <- predict(rf_fit, newdata = test_data)
+
+test_data_rf <- test_data |> 
+  mutate(.pred_rf = rf_pred)
+
+rf_metrics <- yardstick::metrics(test_data_rf, truth = Weight, estimate = .pred_rf)
+rf_metrics
+
+```
+
+```{r}
+
+ggplot(test_data_rf, aes(x = Weight, y = .pred_rf)) +
+  geom_point(alpha = 0.6, color = "forestgreen") +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  labs(
+    title = "Random Forest: Predicted vs Actual",
+    x = "Actual Weight",
+    y = "Predicted Weight"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+
+varImp_df <- as.data.frame(randomForest::importance(rf_fit)) |> 
+  rownames_to_column(var = "Variable") |> 
+  arrange(desc(IncNodePurity))
+
+# Plot
+ggplot(varImp_df, aes(x = reorder(Variable, IncNodePurity), y = IncNodePurity)) +
+  geom_col(fill = "forestgreen") +
+  coord_flip() +
+  labs(
+    title = "Random Forest: Variable Importance",
+    x = "Variable",
+    y = "Importance (IncNodePurity)"
+  ) +
+  theme_minimal()
+
+
+```
+
+Compared to linear models, the **Random Forest** shows a significant improvement in performance, thanks to its ability to capture **non-linear relationships** between features and the target variable.
+
+\-**RMSE = 9.28**: The model's prediction error is nearly half that of the linear regression, indicating **much more accurate predictions**. -**R² = 0.88**: The model explains **88% of the variance** in weight, confirming a strong fit.
+
+From the feature importance plot, we can see that: - **Height** is the most influential variable in predicting weight, which is expected. - **Family history of overweight** also plays a key role, supporting earlier statistical tests.
+
+These results confirm that **Random Forest** is well-suited for this regression task, capturing complex patterns that linear models cannot.
+
+### 6.1. What is the best model for this task?
+
+```{r}
+
+metrics_df <- tibble(
+  model = c("Linear Regression", "Lasso Regression", "Random Forest"),
+  RMSE  = c(
+    rmse_vec(test_data$Weight,        lm_pred),
+    rmse_vec(test_data$Weight,        lasso_pred$.pred),
+    rmse_vec(test_data_rf$Weight,     rf_pred)
+  ),
+  R2    = c(
+    rsq_vec(test_data$Weight,         lm_pred),
+    rsq_vec(test_data$Weight,         lasso_pred$.pred),
+    rsq_vec(test_data_rf$Weight,      rf_pred)
+  )
+)
+
+ggplot(metrics_df,
+       aes(x = model, y = RMSE, fill = model)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  labs(title = "RMSE between models",
+       x = NULL,
+       y = "RMSE") +
+  theme_minimal(base_size = 13)
+
+ggplot(metrics_df,
+       aes(x = model, y = R2, fill = model)) +
+  geom_col(width = 0.7, show.legend = FALSE) +
+  labs(title =  "R2 between models",
+       x = NULL,
+       y = "R2") +
+  theme_minimal(base_size = 13)
+
+```
+
+### 6.2. Which features contribute the most to the prediction?
+
+```{r}
+feauture_important <- tidy(lm_fit) %>% 
+  filter(term != "(Intercept)") %>%         
+  transmute(
+    feature      = term,                     
+    linear_model = estimate                  
+  )
+
+feauture_important <- feauture_important %>%       
+  left_join(                                      
+    wfl_fit %>%                                   
+      extract_fit_parsnip() %>%
+      tidy() %>%
+      filter(term != "(Intercept)") %>%
+      transmute(feature = term,
+                lasso_model = estimate),           
+    by = "feature"
+  )
+
+feauture_important <- feauture_important %>%                   
+  left_join(                                                   
+    randomForest::importance(rf_fit) %>%                                     
+      as.data.frame() %>% 
+      rownames_to_column(var = "feature") %>% 
+      transmute(feature,
+                rf_model = IncNodePurity),                      
+    by = "feature"
+  ) 
+
+```
+
+```{r}
+feauture_scores <- feauture_important %>% 
+  mutate(
+    N = n(),   
+    
+    score_linear = N - rank(-abs(linear_model), ties.method = "min") + 1,
+    score_lasso  = N - rank(-abs(lasso_model),  ties.method = "min") + 1,
+    score_rf     = N - rank(-abs(rf_model),     ties.method = "min") + 1,
+    
+    total_score  = score_linear + score_lasso + score_rf
+  ) %>% 
+  dplyr::select(-N)  
+
+ggplot(feauture_scores,
+       aes(x = reorder(feature, total_score), y = total_score)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(title = "General feauture importance",
+       x = "Feature",
+       y = "Sum ranks") +
+  theme_minimal(base_size = 13)
+
+```
+
+</details>
+
+## 7. Classification Task:
+
+<details>
+
+<summary>Click to expand Classification Task</summary>
+
+### 7.1 Naive Bayes
+
+```{r}
+
+dataset_encoded <- dataset_encoded %>% 
+  dplyr::select(-Weight) %>%
+  mutate(NObeyesdad = factor(NObeyesdad))
+
+split  <- initial_split(dataset_encoded, prop = 0.7,
+                        strata = NObeyesdad)
+train  <- training(split)
+test   <- testing(split)
+
+```
+
+```{r}
+
+nb_rec <- recipe(NObeyesdad ~ ., data = train) %>% 
+  step_zv(all_predictors()) %>%        
+  step_normalize(all_numeric_predictors())
+
+nb_spec <- naive_Bayes() %>%           
+  set_engine("klaR") %>% 
+  set_mode("classification")
+
+nb_wf  <- workflow() %>% 
+  add_recipe(nb_rec) %>% 
+  add_model(nb_spec)
+
+nb_fit <- nb_wf %>% fit(data = train)
+
+```
+
+```{r}
+
+class_pred <- predict(nb_fit, test, type = "class")
+prob_pred  <- predict(nb_fit, test, type = "prob")
+
+test_pred  <- bind_cols(test,
+                        class_pred,
+                        prob_pred)
+
+cm_nb <- test_pred %>% 
+  conf_mat(truth = NObeyesdad, estimate = .pred_class)
+cm_nb
+autoplot(cm_nb, type = "heatmap")
+
+# Accuracy e Kappa
+metrics_nb <- test_pred %>% 
+  metrics(truth = NObeyesdad, estimate = .pred_class)
+metrics_nb
+
+```
+
+As a first approach for the classification task, we implemented a **Naive Bayes** model a simple yet interpretable baseline algorithm.
+
+However, analyzing the **confusion matrix**, we observe that the model struggles to correctly classify the target variable `NObeyesdad`.\
+In particular, it tends to **misclassify most of the categories** predicting the majority as class 6.
+
+-The model reaches an overall **accuracy of just 31%**.
+
+### 7.2 KNN Classifier
+
+As a second classification model, we implemented a **K-Nearest Neighbors (KNN)** classifier.
+
+Unlike Naive Bayes, which makes strong assumptions about feature independence and data distribution, **KNN is a non-parametric model** that makes predictions based on the majority class among the nearest data points in the training set.
+
+```{r}
+
+norm_base <- recipe(NObeyesdad ~ ., data = train) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+
+nearest_neighbor_kknn_tune <-                   
+  nearest_neighbor(neighbors = tune(),
+                   weight_func = "rectangular") %>%
+  set_engine("kknn") %>%
+  set_mode("classification")
+
+nearest_neighbor_kknn_tune2 <-                  
+  nearest_neighbor(neighbors = tune(),
+                   weight_func = "optimal") %>% 
+  set_engine("kknn") %>%
+  set_mode("classification")
+
+knn_wf_set <- workflow_set(
+  preproc = list(base = norm_base),
+  models  = list(
+    knn_rect = nearest_neighbor_kknn_tune,  
+    knn_opti = nearest_neighbor_kknn_tune2  
+  )
+)
+
+
+```
+
+```{r}
+
+cv_folds_otl <- vfold_cv(train, v = 10, strata = NObeyesdad)
+
+
+knn_grid <- grid_regular(
+  neighbors(range = c(1, 30)),  
+  levels = 30                  
+)
+
+
+
+knn_fit_wflows <- knn_wf_set %>%
+  workflow_map(
+    "tune_grid",
+    resamples = cv_folds_otl,
+    grid      = knn_grid,
+    metrics   = metric_set(roc_auc, accuracy),   
+    verbose   = TRUE
+  )
+
+autoplot(
+  knn_fit_wflows,
+  metric = "roc_auc",
+  id     = "base_knn_opti"        
+) +
+  labs(
+    title = "K-NN (peso optimal) – ROC-AUC vs k",
+    x     = "# Nearest Neighbors"
+  )
+
+```
+
+We decided to perform hyperparameter tuning on the number of **neighbors (`k`)** to optimize the performance of the KNN model.
+
+From the ROC-AUC plot, we can observe that the model performance **peaks around `k = 17`**, after which it reaches a **plateau**. This suggests that increasing `k` beyond this point does not bring further improvements.
+
+It's important to note that as we **increase the number of neighbors**, the model becomes more **generalized and smoother**, which reduces variance but can increase bias. This means: - Small `k` values → the model is **sensitive to noise** and may overfit - Large `k` values → the model becomes more **stable**, but may **underfit** if `k` is too high
+
+```{r}
+
+knn_opti_result <- extract_workflow_set_result(knn_fit_wflows, "base_knn_opti")
+best_knn_params <- select_best(knn_opti_result, metric = "roc_auc")
+
+final_knn_wf <- knn_wf_set %>%
+  extract_workflow("base_knn_opti") %>%
+  finalize_workflow(best_knn_params)
+
+
+final_knn_fit <- final_knn_wf %>%
+  fit(data = train)
+
+class_pred <- predict(final_knn_fit, test, type = "class")
+prob_pred  <- predict(final_knn_fit, test, type = "prob")
+
+test_knn <- bind_cols(test, class_pred, prob_pred) %>% 
+  mutate(.pred_class = factor(.pred_class,
+                              levels = levels(test$NObeyesdad)))
+
+best_par  <- select_best(knn_opti_result, metric = "roc_auc")
+
+```
+
+```{r}
+cm_knn <- conf_mat(test_knn, truth = NObeyesdad, estimate = .pred_class)
+cm_knn
+autoplot(cm_knn, type = "heatmap") +
+  labs(title = "KNN Confusion matrix (test-set)",
+       x = "Truth", y = "Prediction")
+
+accuracy_result <- accuracy(test_knn, truth = NObeyesdad, estimate = .pred_class)
+print(accuracy_result)
+
+
+```
+
+The KNN model significantly outperforms Naive Bayes, reaching an **accuracy of 74.8%** on the test set.\
+From the confusion matrix, we can see that the model performs well across most classes, although some confusion remains between adjacent obesity levels.
+
+KNN proves to be a much more effective classifier for this problem, especially after hyperparameter tuning.
+
+### Random Forest
+
+```{r}
+
+rf_recipe <- recipe(NObeyesdad ~ ., data = train) %>%
+  step_zv(all_predictors())
+
+rf_spec <- rand_forest(
+             mtry  = tune(),   
+             trees = tune(),
+             min_n = 10
+           ) %>%
+  set_engine("randomForest") %>%
+  set_mode("classification")
+
+
+rf_wf <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_spec)
+
+```
+
+```{r}
+mtry_param <- mtry(range = c(2, 12))
+trees_param <- trees(range = c(100,500))
+
+rf_grid <- grid_regular(
+  mtry_param,
+  trees_param,
+  levels = 5  
+)
+
+folds <- vfold_cv(train, v = 10, strata = NObeyesdad)
+
+rf_tune <- rf_wf %>%
+  tune_grid(
+    resamples = folds,
+    grid      = rf_grid,
+    metrics   = metric_set(roc_auc, accuracy),
+    verbose   = TRUE
+  )
+
+autoplot(rf_tune, metric = "roc_auc", smooth = FALSE) +
+  labs(title = "Random-Forest – ROC-AUC vs mtry")
+
+best_par <- select_best(rf_tune, metric = "roc_auc")
+best_par
+
+```
+
+For the Random Forest model, we performed **hyperparameter tuning** on two key parameters:
+
+-   **`mtry`**: the number of predictors randomly selected at each split.
+
+-   **`trees`**: the number of decision trees in the ensemble.
+
+We used a **grid search** with regular intervals to explore combinations of these values, and selected the best configuration based on **ROC-AUC** performance.
+
+We finally find that the best model is the one with **mtry = 4** and **trees = 400**
+
+```{r}
+rf_final <- rf_wf %>%
+  finalize_workflow(best_par) %>%  
+  fit(data = train)
+
+class_pred <- predict(rf_final, test, type = "class")
+prob_pred  <- predict(rf_final, test, type = "prob")
+
+test_rf <- bind_cols(test, class_pred, prob_pred) %>% 
+  mutate(.pred_class = factor(.pred_class,
+                              levels = levels(test$NObeyesdad)))
+
+
+```
+
+```{r}
+cm_rf <- conf_mat(test_rf, truth = NObeyesdad, estimate = .pred_class)
+cm_rf
+autoplot(cm_rf, type = "heatmap") +
+  labs(title = "Random-Forest – Confusion matrix (test-set)",
+       x = "Truth", y = "Prediction")
+
+metrics_rf <- metrics(test_rf, truth = NObeyesdad, estimate = .pred_class)
+metrics_rf
+```
+
+The Random Forest classifier delivers excellent performance on the test set, achieving an **accuracy of 84.1%** and a **Kappa score of 0.81**, indicating strong agreement between predictions and true labels.
+
+From the confusion matrix, we can observe that: - Most classes are classified with high precision. - The model handles all obesity levels fairly well, with only minor confusion between adjacent classes (e.g., class 1 vs 2 or 3 vs 4).
+
+```{r}
+rf_final |> 
+  extract_fit_engine() |> 
+  vip()
+```
+
+</details>
+
+## 8. Conclusion
+
+<details>
+
+<summary>Click to expand Conclusion</summary>
+
+#### 8.1 General Questions
+
+##### Classification Task:
+
+-   **Can we predict an individual's obesity level (`NObeyesdad`) based on the available features?**\
+    Yes. Through our experiments, we demonstrated that it is possible to predict obesity levels with high accuracy using supervised classification models. Even though simpler models like Naive Bayes performed poorly (accuracy ≈ 31%), more advanced algorithms such as **K-Nearest Neighbors** and especially **Random Forest** showed strong predictive capabilities.
+
+-   **What is the best model for this task?**\
+    The **Random Forest classifier** was the most effective, achieving an **accuracy of 84.1%** and a **Kappa score of 0.81** on the test set. These results indicate not only strong overall performance but also good consistency across all obesity classes, as seen in the confusion matrix.
+
+-   **Which features contribute the most to the prediction?**\
+    According to the feature importance analysis, the most impactful variables for classification were:
+
+    -   `FCVC` (frequency of vegetable consumption)
+    -   `Age`
+    -   `Height`\
+
+------------------------------------------------------------------------
+
+##### Regression Task:
+
+-   **Can we predict an individual's weight (`Weight`) using the available features?**\
+    Yes. Regression models applied to the dataset showed that individual weight can be accurately estimated from the provided variables. A simple linear regression served as a baseline but had a high residual error (\~17.4 kg) and only moderate explanatory power (R² = 0.55).
+
+-   **What is the best model for this task?**\
+    Again, **Random Forest regression** clearly outperformed the linear and regularized models, achieving an **RMSE of 9.28**, **MAE of 5.86**, and an **R² of 0.88**. This indicates the model was able to explain 88% of the variance in the weight data.
+
+-   **Which features contribute the most to the prediction?**\
+    The top predictors of weight were:
+
+    -   `Height` — as expected, due to its strong physiological relationship with weight.
+    -   `family_history_with_overweight` — confirming our statistical tests.
+    -   `Age` and `FCVC` also ranked highly.\
+        These features suggest that both **biometric data** and **lifestyle factors** play a key role in estimating weight.
+
+------------------------------------------------------------------------
+
+#### 8.2 More Specific Questions
+
+##### Feature Importance:
+
+-   **Is there a stronger impact on BMI from dietary habits or from physical activity levels?**\
+    Based on correlation analysis and variable importance plots, **dietary features** (like `FCVC`, `FAVC`, and `CALC`) consistently showed **stronger influence on BMI** compared to physical activity variables (`FAF`, `TUE`).
+
+------------------------------------------------------------------------
+
+##### Hypothesis Testing:
+
+-   **Can we confirm through this dataset whether `family_history_with_overweight` influences weight?**\
+    Yes. Both the **t-test** and **Wilcoxon test** showed a **statistically significant difference (p-value \< 0.05)** in weight and BMI between individuals with and without a family history of overweight.
+
+-   **Can we observe any impact on BMI by analyzing the main mode of transportation (`MTRANS`)?**\
+    Yes. A **one-way ANOVA** revealed a significant difference in BMI across transportation groups (p-value ≈ 0). Post-hoc analysis showed that this difference is mainly driven by individuals who use **Automobile** or **Public Transportation**, while other groups (e.g., Walking, Biking) had similar BMI distributions.
+
+<details>

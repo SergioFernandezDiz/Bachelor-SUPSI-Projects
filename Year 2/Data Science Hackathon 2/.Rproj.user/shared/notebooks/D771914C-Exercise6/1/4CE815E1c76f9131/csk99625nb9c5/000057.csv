@@ -1,0 +1,24 @@
+"0","library(""infer"")"
+"0",""
+"0","data <- meteo |> "
+"0","  filter((station %in% c(""BAS"",""SMA"") ) & month==3) |> "
+"0","  select(year,station,tempMean)"
+"0",""
+"0","obs_mean <- data |>  "
+"0","  specify(tempMean ~ station) |> "
+"0","  calculate(stat=""diff in means"")"
+"2","Avvertimento: [38;5;252mThe statistic is based on a difference or ratio; by default, for difference-based statistics, the explanatory
+variable is subtracted in the order ""BAS"" - ""SMA"", or divided in the order ""BAS"" / ""SMA"" for ratio-based statistics.
+To specify this order yourself, supply `order = c(""BAS"", ""SMA"")` to the calculate() function.[39m"
+"0","test <- data |>  "
+"0","  specify(tempMean ~ station) |> "
+"0","  hypothesize(null='independence') |> #<<"
+"0","  generate(reps = 1000, type = ""permute"") |> "
+"0","  calculate(stat = ""diff in means"")"
+"2","Avvertimento: [38;5;252mThe statistic is based on a difference or ratio; by default, for difference-based statistics, the explanatory
+variable is subtracted in the order ""BAS"" - ""SMA"", or divided in the order ""BAS"" / ""SMA"" for ratio-based statistics.
+To specify this order yourself, supply `order = c(""BAS"", ""SMA"")` to the calculate() function.[39m"
+"0","test |> "
+"0","  visualize() + #<<"
+"0","  shade_p_value(obs_stat = obs_mean, #<<"
+"0","                direction = ""two-sided"") #<<"

@@ -1,0 +1,35 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfSW5uZXJqb2luIHw+XG4gIGdyb3VwX2J5KENhbnRvbixZZWFyKSB8PlxuICBtdXRhdGUoZ2RwX3BlckNhcGl0YSA9IFRvdGFsL1BvcHVsYXRpb24qMWU2KSB8PlxuICBzZWxlY3QoQ2FudG9uLCBZZWFyLCBnZHBfcGVyQ2FwaXRhKSB8PlxuICB1bmdyb3VwKCkgfD5cbiAgZ3JvdXBfYnkoQ2FudG9uKSB8PlxuICBmaWx0ZXIoWWVhcj09MjAxNylcbmBgYCJ9 -->
+
+```r
+swiss_Innerjoin |>
+  group_by(Canton,Year) |>
+  mutate(gdp_perCapita = Total/Population*1e6) |>
+  select(Canton, Year, gdp_perCapita) |>
+  ungroup() |>
+  group_by(Canton) |>
+  filter(Year==2017)
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_Innerjoin |>
+  group_by(Canton,Year) |>
+  mutate(gdp_perCapita = Total/Population*1e6) |>
+  select(Canton, Year, gdp_perCapita) |>
+  ungroup() |>
+  group_by(Canton) |>
+  filter(Year==2017)
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImdyb3VwZWRfZGYiLCJ0YmxfZGYiLCJ0YmwiLCJkYXRhLmZyYW1lIl0sIm5yb3ciOjI2LCJuY29sIjozLCJzdW1tYXJ5Ijp7IkEgdGliYmxlIjpbIjI2IMOXIDMiXSwiR3JvdXBzIjpbIkNhbnRvbiBbMjZdIl19fSwicmRmIjoiSDRzSUFBQUFBQUFBQTkxVXpVOFRRUlNmMGxMb1lySHhJeXFueG9NbWhqWUdZNVRFd3hTVUFrRk0ya0lLQjNTNk83UWIxdDExZHBldkV5R2dGelJJb2tZMGtCQTlHREVtZUJDRElWRThHanlaZUNCeU1FRXhDT1VqRVE5U1o4dk9ndlUvY0pQWmVlODN2L2YyOTJiMlRlUjgvQlFYNXdBQVR1Qnk1UUZuUGpWQmZrT3NLbkFXQUFvQTRBQXU0REhuVGtyYW4yVUM0S09qeEZwd2h4QkpJc1B5ZkNGVnhYSTNsaVIvVGRBZlNRWC94VU83Y1ZjRkpqTGpWQ0FOUzRFNkpBc2FuMEt0dW9VWGJlTlJIUWtNS3F3aVlrSXhTSktKQ0dNWnR5UGJreEF4TkFCNnN1Rmhnb3pFekd0WndPeExybHFETUhKQm5jRlREZGhpYy9YWTRGTXpZenFXTElLblhoUTZrTFFUWFhncDhaZlBSZldnUDR3a3lVYjJSRTM5clNsa2FEYm1pU3FTb3FjTXUxdzNKWFYwZFRNWk1icTBzNC91bU1pTHNtSjV6Z1lpTXVtTnlCQVlxUkZKU05RWXFkbXd0NlBaSUNLZm9sYXhlVkp3dE04OFYvQy96SFpkeXdGRmVGRDREdjdvSDlvWTA4dmc5eS96QnllL0p1RGEwU0YzYlZFWlhDMzllR1YrWkRua2pzOStpMytLdzZWaldzMnc3d0RjdlA5NTZzanhhcGgrR0Y3ZmJHK0Q2Y1h4azEzekEzRDVsMW8rcUp5QksxT3ZZajNYUitERzlLSGhld01SbUg3U2Y4dDc0aGxjNlQ0OWVlTzNBNjRPdlFtOVBNZkJqV0kvVHZicWNLV2hhU0l3eDhHbFJ6ZEhKL1JldVBSMDcycmw5Q0Jjdnp2YWN1SDJDN2pZZWExMHpmOGNwdnN1dGxUNTNzTEZEM1doOGFLUmtHUHVjTUUrengzNE0vSitZYmI2Y1U3TDVmTVMwalNyM1JqSUNVaEh3VmFDcnVJY3VvY29IVUdaNG1hSWw0NjhIdnJLWkRJTHVYa1p5Y3pyWkw5TUpaSjF4VzZRSm95SVpYdVRnbnBaeGFRU3FhS09LTENWazY5QVVYVlJrV25HUFBPQ2NPY29kcEFjd0dmSXBnSWh3S2NNdVMxUVZwNno3bFRscEZscEZ0cCt2Slpkc3N0MmJzdHdaYXh3TjZzRXkwbVI5ck5WcklRU2RpczdCZHh1bWNWMHQ3TDdFRlNKS0xON2hhT29GdFFWSGJFUWpsY2tobVJMQjF0L0FLWjdWOVEyQlFBQSJ9 -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"Year\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]},{\"label\":[\"gdp_perCapita\"],\"name\":[3],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Aargau\",\"2\":\"2017\",\"3\":\"61803.48\"},{\"1\":\"Appenzell I. Rh.\",\"2\":\"2017\",\"3\":\"60460.59\"},{\"1\":\"Appenzell A. Rh.\",\"2\":\"2017\",\"3\":\"55070.97\"},{\"1\":\"Bern\",\"2\":\"2017\",\"3\":\"74281.13\"},{\"1\":\"Basel-Landschaft\",\"2\":\"2017\",\"3\":\"70349.34\"},{\"1\":\"Basel-Stadt\",\"2\":\"2017\",\"3\":\"183065.86\"},{\"1\":\"Fribourg\",\"2\":\"2017\",\"3\":\"57651.60\"},{\"1\":\"Geneva\",\"2\":\"2017\",\"3\":\"100765.92\"},{\"1\":\"Glarus\",\"2\":\"2017\",\"3\":\"68036.50\"},{\"1\":\"Graubünden\",\"2\":\"2017\",\"3\":\"69274.76\"},{\"1\":\"Jura\",\"2\":\"2017\",\"3\":\"63435.51\"},{\"1\":\"Lucerne\",\"2\":\"2017\",\"3\":\"64989.79\"},{\"1\":\"Neuchâtel\",\"2\":\"2017\",\"3\":\"84961.48\"},{\"1\":\"Nidwalden\",\"2\":\"2017\",\"3\":\"68248.35\"},{\"1\":\"Obwalden\",\"2\":\"2017\",\"3\":\"64465.68\"},{\"1\":\"St. Gallen\",\"2\":\"2017\",\"3\":\"71980.08\"},{\"1\":\"Schaffhausen\",\"2\":\"2017\",\"3\":\"82146.02\"},{\"1\":\"Solothurn\",\"2\":\"2017\",\"3\":\"64170.80\"},{\"1\":\"Schwyz\",\"2\":\"2017\",\"3\":\"58660.43\"},{\"1\":\"Thurgau\",\"2\":\"2017\",\"3\":\"58712.50\"},{\"1\":\"Ticino\",\"2\":\"2017\",\"3\":\"80233.96\"},{\"1\":\"Uri\",\"2\":\"2017\",\"3\":\"52163.54\"},{\"1\":\"Vaud\",\"2\":\"2017\",\"3\":\"67652.84\"},{\"1\":\"Valais\",\"2\":\"2017\",\"3\":\"52858.38\"},{\"1\":\"Zug\",\"2\":\"2017\",\"3\":\"146307.00\"},{\"1\":\"Zurich\",\"2\":\"2017\",\"3\":\"95532.81\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[3]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[26]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

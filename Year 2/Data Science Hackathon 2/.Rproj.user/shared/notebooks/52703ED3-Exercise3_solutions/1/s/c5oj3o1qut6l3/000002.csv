@@ -1,0 +1,14 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgPC0gc3dpc3NfZ2RwX3RpZHkgfD5cbiAgbXV0YXRlKENhbnRvbiA9IHJlcGxhY2UoQ2FudG9uLENhbnRvbj09XCJCZXJuZVwiLFwiQmVyblwiKSlcbmBgYCJ9 -->
+
+```r
+swiss_gdp_tidy <- swiss_gdp_tidy |>
+  mutate(Canton = replace(Canton,Canton==\"Berne\",\"Bern\"))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy <- swiss_gdp_tidy |>
+  mutate(Canton = replace(Canton,Canton==\"Berne\",\"Bern\"))
+```"

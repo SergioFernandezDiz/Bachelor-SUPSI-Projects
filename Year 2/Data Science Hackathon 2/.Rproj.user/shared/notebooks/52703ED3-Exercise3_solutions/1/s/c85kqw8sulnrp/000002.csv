@@ -1,0 +1,29 @@
+"1","
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3dpc3NfZ2RwX3RpZHkgfD4gXG4gIGZpbHRlcihZZWFyPT0yMDEwKSB8PlxuICBhcnJhbmdlKGRlc2MocGVyY2VudF9hZ3JpY3VsdHVyZSkpIHw+XG4gIHNlbGVjdChjKENhbnRvbixwZXJjZW50X2FncmljdWx0dXJlKSlcbmBgYCJ9 -->
+
+```r
+swiss_gdp_tidy |> 
+  filter(Year==2010) |>
+  arrange(desc(percent_agriculture)) |>
+  select(c(Canton,percent_agriculture))
+```
+
+<!-- rnb-source-end -->
+"
+"0","```r
+swiss_gdp_tidy |> 
+  filter(Year==2010) |>
+  arrange(desc(percent_agriculture)) |>
+  select(c(Canton,percent_agriculture))
+```"
+"1","
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MjYsIm5jb2wiOjIsInN1bW1hcnkiOnsiQSB0aWJibGUiOlsiMjYgw5cgMiJdfX0sInJkZiI6Ikg0c0lBQUFBQUFBQUEyVlRYVWdVVVJRZTkwOTMvTWt5aUV6Smg0SWtkeUdNeUF5dWY3aWtZdVNxaUQzWTNabTdPMFBqblcxMjdxNUtoUmlDNFVOczJJUGhRaFJJU0VWRUlrWlFZQWhHaE5XYkZCV3BTRUlrU1FxUzI1M2R1WnRzQXpOenpuZnUrYzQ1MzV4cHFlc281enQ0anVPc25NMW00YXgyYW5MMnR0WjYxMG1Pb3dESFpYQTJ6bW04ZStpaEFtb1lZRDY5QzgxQWZuVXdpSEFmVXBTU00rNlNGc2x0NHBtdEV0RUNrSml1b3gwcVVBNlpYbGE5SnZ0VUdtZUhtNGlBTkl4WStLd3ZBaFVSWWRPM05SQU4vbCt2ZW1jOVd6c2tvbW5uZUFVSit2MFNKS0VVaDcxbVJ3SGVxN3RMUEZCUlVtRm5zeXlhTmJsK0E4ajJhSkQ0WnA3amYyMDRLRzJrdDQ5NTFUQXhYL0k0MzR5SUlNM2MxWkhDNGg0RmFvUk43UFNxaXFwVFNSaVp0VTJUMlVnMU1JUVVWeFBFWXNob1hHY01yYklnWTVWNW5VU1RCU25GampBS00xR3NuWVJKbVowazgrcFExS21iWjN5cUtrZmowOHhESTgrcWJKTlI1M2pwRy9CbksrcXIvZllUYk4ycG1KMHNmd0UyRHA0K0Zkc01nL1VuL3ZiQktBTHJqNGNIcDI4TmdGOTc5KzNQK2JFQTFxSmJwZStPY0dDMStMNDg0TmtFMzVlKzdvNzF4Y0RLMnV5anE1RlNzRkozR1l4ZTd3SExaV1Bud2l1ZndMSmpxUGh3MFFSWWV1MC8wSDArQ3BhR0dqY0dMcTJEeFlhQ204TzNLOENYMzVYVDR5TTgrRHkxNTVpOE9nY1dKaitNbFMyTWd2ZTlIZGZnaFZkZ1htcWVXQ1JId1h6WGljckF4eUI0Ky9EQjlzdllGWERqWHVGYzBXcFcybTdhTWV4R0lYTXZMVXlnV29oMWxhbGRFRVNhZ0xEZUJRTlVSS0xvUkVOcExFNU5qYmdaVTY3QjFFOGY4WGg4T2IyY29NQVFLOGRBWG9RNmRQczFtays5N2JTVVREV295eXFtU1JiakgzS2tKV2RvYWNBdWdvMU9SSmNnRVh6UmRUd3RiQTNpZ0ZFekFTV3ZYTk11M0dGYmtsMVk0bWE2ZzBtRGNFQk8vUXQyQmZwU1Myc1ZVZGcwODZnZUNUbmNRVTNHYkNkNWlvYmN1cXBEbHNJTHFzS1F4T1RjOWwrbHhreDBXQVFBQUE9PSJ9 -->
+
+<div data-pagedtable=\"false\">
+  <script data-pagedtable-source type=\"application/json\">
+{\"columns\":[{\"label\":[\"Canton\"],\"name\":[1],\"type\":[\"chr\"],\"align\":[\"left\"]},{\"label\":[\"percent_agriculture\"],\"name\":[2],\"type\":[\"dbl\"],\"align\":[\"right\"]}],\"data\":[{\"1\":\"Appenzell I. Rh.\",\"2\":\"2.78696447\"},{\"1\":\"Thurgau\",\"2\":\"2.58865554\"},{\"1\":\"Valais\",\"2\":\"1.87391795\"},{\"1\":\"Fribourg\",\"2\":\"1.72661760\"},{\"1\":\"Lucerne\",\"2\":\"1.44512580\"},{\"1\":\"Obwalden\",\"2\":\"1.29355463\"},{\"1\":\"Jura\",\"2\":\"1.29310181\"},{\"1\":\"Appenzell A. Rh.\",\"2\":\"1.19240484\"},{\"1\":\"Vaud\",\"2\":\"1.09813992\"},{\"1\":\"Schaffhausen\",\"2\":\"0.84737034\"},{\"1\":\"Berne\",\"2\":\"0.84056142\"},{\"1\":\"St. Gallen\",\"2\":\"0.77951368\"},{\"1\":\"Nidwalden\",\"2\":\"0.75836003\"},{\"1\":\"Graubünden\",\"2\":\"0.69294563\"},{\"1\":\"Schwyz\",\"2\":\"0.68829733\"},{\"1\":\"Aargau\",\"2\":\"0.68095689\"},{\"1\":\"Neuchâtel\",\"2\":\"0.67288779\"},{\"1\":\"Glarus\",\"2\":\"0.63404254\"},{\"1\":\"Solothurn\",\"2\":\"0.53005778\"},{\"1\":\"Uri\",\"2\":\"0.49554877\"},{\"1\":\"Basel-Landschaft\",\"2\":\"0.41734782\"},{\"1\":\"Ticino\",\"2\":\"0.28865636\"},{\"1\":\"Zurich\",\"2\":\"0.25636641\"},{\"1\":\"Geneva\",\"2\":\"0.25581127\"},{\"1\":\"Zug\",\"2\":\"0.23967516\"},{\"1\":\"Basel-Stadt\",\"2\":\"0.01544782\"}],\"options\":{\"columns\":{\"min\":{},\"max\":[10],\"total\":[2]},\"rows\":{\"min\":[10],\"max\":[10],\"total\":[26]},\"pages\":{}}}
+  </script>
+</div>
+
+<!-- rnb-frame-end -->
+"

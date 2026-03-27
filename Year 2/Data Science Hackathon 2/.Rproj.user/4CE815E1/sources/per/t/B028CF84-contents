@@ -1,0 +1,39 @@
+---
+title: "Exercise 7:  Anova and Linear regression"
+subtitle: "Data Projects & Hackathon 2"
+output: html_notebook
+---
+
+In today's exercise we will work on the dataset `meteoData1.csv`. 
+
+
+## 1. Comparisons of several means
+
+Let us define the seasons as 
+
+* `12,1,2` winter;
+
+* `3,4,5` spring;
+
+* `6,7,8` summer;
+
+* `9,10,11` autumn;
+
+
+1. Can we say that the cloud cover in `BAS` is different across seasons?
+
+2. The variable `tempDeviation` encodes the deviation from the norm of the measured temperature. Consider the decades `1981-1990`, `1991-2000`, `2001-2010`, `2011-2020`. Can you say that `tempDeviation` is different across decades? 
+
+3. Can we say that `sunshinePerc` is different across stations?
+
+## 2. Relationships between variables 
+
+Consider the dataset `meteoData1.csv` seen in class. Let's focus on the station `SAM`.
+
+1. Build a train and test split and compute a linear model to predict the variable `tempMean` from the variables `precipTot`, `sunshinePerc`, `cloudCover` and `snowTot`. 
+
+2. Check the residuals of this model. Is the model valid?
+
+3. Can you do some transformations on the variables to obtain better residuals? Create a second model with those transformations, is it valid?
+
+4. The Root Mean Squared Error is defined as $RMSE=\sqrt{\dfrac{1}{n}\sum_{i=1}^n (y_{i}-y_{pred,i})^2}$, where $y_1, \ldots, y_n$ are the observed values and $y_{pred,i}$ are the predicted values, for $i=1, \ldots,n$. You can either compute this value directly from the predictions returned from `augment` (see slides) or you can use the package `yardstick` that provides the functions `metrics()` and `rmse()` which compute metrics automatically. Compute the RMSE on the test data for both models above, which one is better?
